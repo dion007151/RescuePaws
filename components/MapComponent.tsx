@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { Report } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Plus, Minus } from "lucide-react";
@@ -10,7 +10,7 @@ interface MapComponentProps {
   center?: [number, number];
 }
 
-export default function MapComponent({
+function MapComponentContent({
   reports,
   onMapClick,
   onMarkerClick,
@@ -27,7 +27,6 @@ export default function MapComponent({
     import("leaflet").then((L) => {
       if (!mapRef.current || leafletMapRef.current) return;
       
-      // Secondary check to see if the DOM element already has a leaflet instance
       if ((mapRef.current as any)._leaflet_id) return;
 
       const map = L.map(mapRef.current!, {
@@ -36,6 +35,7 @@ export default function MapComponent({
       }).setView(center, 13);
       leafletMapRef.current = map;
 
+      // High-performance tiles
       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         maxZoom: 20,
       }).addTo(map);
@@ -64,16 +64,24 @@ export default function MapComponent({
         const isRescued = report.status === "rescued";
         const color = isRescued ? "#10b981" : "#f8947b";
         
+        // OPTIMIZATION: Loading lazy for marker images
         const photoHtml = report.imageUrl 
-          ? `<img src="${report.imageUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`
+          ? `<img src="${report.imageUrl}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`
           : `<span style="font-size: 20px;">${report.animalType === "dog" ? "🐶" : report.animalType === "cat" ? "🐱" : "🐾"}</span>`;
 
         const icon = L.divIcon({
           className: "marker-pin-container",
           html: `
+            <style>
+              @keyframes marker-appear {
+                0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+                70% { transform: scale(1.1) rotate(0); opacity: 1; }
+                100% { transform: scale(1) rotate(0); opacity: 1; }
+              }
+            </style>
             <div class="marker-pin-wrapper" style="
-              animation: marker-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-              animation-delay: ${index * 0.05}s;
+              animation: marker-appear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+              animation-delay: ${Math.min(index * 0.03, 1)}s;
               position: relative;
               width: 48px;
               height: 48px;
@@ -179,3 +187,5 @@ export default function MapComponent({
     </div>
   );
 }
+
+export default memo(MapComponentContent);

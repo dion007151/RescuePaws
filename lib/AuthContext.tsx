@@ -32,20 +32,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       setUser(authUser);
       
+      // FIRE AND FORGET: Start fetching profile, but don't block the UI loading state
       if (authUser && db) {
-        try {
-          const docRef = doc(db, "users", authUser.uid);
-          const docSnap = await getDoc(docRef);
+        getDoc(doc(db, "users", authUser.uid)).then((docSnap) => {
           if (docSnap.exists()) {
             setProfile(docSnap.data() as UserProfile);
           }
-        } catch (err) {
+        }).catch((err) => {
           console.error("Error fetching user profile:", err);
-        }
+        });
       } else {
         setProfile(null);
       }
       
+      // Critical: Set loading to false as soon as we know if a user exists
       setLoading(false);
     });
     return unsubscribe;

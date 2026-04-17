@@ -97,7 +97,8 @@ export default function MapPage() {
     return r.status === filter;
   });
 
-  if (loading || !user) {
+  // Pre-authentication check is handled inside useEffect, so we only block if total status is unknown
+  if (loading) {
     return (
       <div className="min-h-screen bg-[hsl(45,30%,98%)] flex flex-col pt-20 px-6 gap-6">
           <Skeleton className="h-12 w-48 rounded-2xl" />
@@ -105,7 +106,7 @@ export default function MapPage() {
              <div className="flex-1 rounded-[3rem] overflow-hidden">
                 <Skeleton className="w-full h-full" />
              </div>
-             <div className="w-[380px] space-y-4">
+             <div className="w-[380px] space-y-4 font-black">
                 <ReportCardSkeleton />
                 <ReportCardSkeleton />
                 <ReportCardSkeleton />
@@ -114,6 +115,9 @@ export default function MapPage() {
       </div>
     );
   }
+
+  // Once authenticated (even if profile still loading), show the skeleton/shell layout
+  if (!user) return null;
 
   return (
     <div className="h-screen flex flex-col bg-[hsl(45,30%,98%)] overflow-hidden bg-paw-pattern">
