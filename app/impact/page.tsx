@@ -64,19 +64,28 @@ export default function ImpactPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({ total: 0, rescued: 0, pending: 0 });
+  const [globalStats, setGlobalStats] = useState({ total: 0, rescued: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user || !db) { setLoading(false); return; }
     async function fetchStats() {
       try {
-        const q = query(collection(db, "reports"), where("userId", "==", user!.uid));
-        const snap = await getDocs(q);
-        let rescued = 0;
-        snap.forEach(d => { if (d.data().status === "rescued") rescued++; });
-        setStats({ total: snap.size, rescued, pending: snap.size - rescued });
-      } catch {
-        // ignore
+        // Fetch Personal Stats
+        const personalQ = query(collection(db, "reports"), where("userId", "==", user!.uid));
+        const personalSnap = await getDocs(personalQ);
+        let personalRescued = 0;
+        personalSnap.forEach(d => { if (d.data().status === "rescued") personalRescued++; });
+        setStats({ total: personalSnap.size, rescued: personalRescued, pending: personalSnap.size - personalRescued });
+
+        // Fetch Global Community Stats (The "Legit Connection")
+        const globalSnap = await getDocs(collection(db, "reports"));
+        let globalRescued = 0;
+        globalSnap.forEach(d => { if (d.data().status === "rescued") globalRescued++; });
+        setGlobalStats({ total: globalSnap.size, rescued: globalRescued });
+
+      } catch (err) {
+        console.error("Stats fetch error:", err);
       } finally {
         setLoading(false);
       }
@@ -129,11 +138,38 @@ export default function ImpactPage() {
           </motion.div>
         )}
 
+        {/* Community Results (The Legit Connection) */}
+        {!loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+            className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white flex flex-col gap-4 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-1 px-1">
+              <ShieldCheck className="text-emerald-500" size={16} />
+              <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,40%)]">Verified Community Impact</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/80 rounded-[2rem] p-5 shadow-sm text-center">
+                 <p className="text-2xl font-black text-[hsl(160,10%,20%)]">{globalStats.total}</p>
+                 <p className="text-[9px] font-black text-[hsl(155,15%,50%)] uppercase tracking-widest">Total Reports</p>
+              </div>
+              <div className="bg-emerald-50 rounded-[2rem] p-5 shadow-sm text-center">
+                 <p className="text-2xl font-black text-emerald-600">{globalStats.rescued}</p>
+                 <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Global Rescues</p>
+              </div>
+            </div>
+            <p className="text-center text-[10px] text-[hsl(155,15%,60%)] font-black uppercase tracking-tighter">
+               Connected locally in our rescue network
+            </p>
+          </motion.div>
+        )}
+
         {/* Achievement Banner */}
         {!isNewUser && stats.rescued > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
-            className="bg-gradient-to-r from-[hsl(160,10%,20%)] to-[hsl(160,15%,30%)] rounded-[2.5rem] p-6 text-white flex items-center gap-5 relative overflow-hidden"
+            className="bg-gradient-to-r from-[hsl(160,10%,20%)] to-[hsl(160,15%,30%)] rounded-[2.5rem] p-6 text-white flex items-center gap-5 relative overflow-hidden shadow-2xl shadow-black/10"
           >
             <div className="w-16 h-16 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center shadow-lg shadow-[hsl(15,80%,65%)]/30 flex-shrink-0">
               <Star className="text-white" size={28} />
