@@ -42,7 +42,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !profile) {
+    if (!user) {
       setError("User profile not found. Please log in again.");
       return;
     }
@@ -99,8 +99,8 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
       setStatus("recording");
       await addDoc(collection(db, "reports"), {
         userId: user.uid,
-        reporterName: profile.fullName,
-        reporterPhone: profile.phoneNumber,
+        reporterName: profile?.fullName || "Anonymous Rescuer",
+        reporterPhone: profile?.phoneNumber || "",
         animalType,
         condition,
         description: description.trim(),
@@ -137,7 +137,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
+    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
