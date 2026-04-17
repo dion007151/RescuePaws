@@ -135,9 +135,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="text-center text-[hsl(155,15%,85%)] text-xs mt-8 font-black uppercase tracking-widest">
-          Every paw matters • Together we save lives
-        </p>
+        <div className="text-center mt-8 space-y-2">
+           <p className="text-[hsl(155,15%,85%)] text-[10px] font-black uppercase tracking-[0.2em]">
+             Solo Developer: Dionimar Flores
+           </p>
+           <p className="text-[hsl(155,15%,90%)] text-[9px] font-black uppercase tracking-widest italic opacity-50">
+             Every paw matters • Together we save lives
+           </p>
+        </div>
       </motion.div>
     </div>
   );

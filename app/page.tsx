@@ -55,7 +55,10 @@ export default function LandingPage() {
           <div className="w-10 h-10 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center shadow-sm">
             <PawPrint className="text-white w-6 h-6" />
           </div>
-          <span className="font-display text-2xl font-black tracking-tight">RescuePaws</span>
+          <div className="flex flex-col">
+            <span className="font-display text-2xl font-black tracking-tight leading-none">RescuePaws</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">by Dionimar Flores</span>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           {user ? (
@@ -242,10 +245,13 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-[hsl(155,15%,90%)] text-center">
-        <p className="text-sm font-bold text-[hsl(155,15%,50%)] mb-2">
+        <p className="text-sm font-black text-[hsl(160,10%,20%)] mb-2 uppercase tracking-widest">
+          Solo Developer: Dionimar Flores
+        </p>
+        <p className="text-[10px] font-bold text-[hsl(155,15%,50%)] mb-4">
           Made with ❤️ for animal rescue communities
         </p>
-        <p className="text-xs text-[hsl(155,15%,90%)] uppercase font-black tracking-[0.2em]">
+        <p className="text-[10px] text-[hsl(155,15%,90%)] uppercase font-black tracking-[0.2em]">
           © 2026 RescuePaws System
         </p>
       </footer>
