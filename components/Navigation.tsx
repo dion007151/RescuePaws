@@ -39,6 +39,11 @@ export default function Navigation() {
             <span className="font-display text-xl font-black text-[hsl(160,10%,20%)] hidden lg:block">RescuePaws</span>
           </div>
 
+          <div className="hidden lg:block px-2 mb-6 -mt-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)]">Solo Developer</p>
+            <p className="text-sm font-black text-[hsl(160,10%,20%)] mt-1">Dionimar Flores</p>
+          </div>
+
           <nav className="flex-1 space-y-2">
             {navItems.map((item) => {
               const isActive = pathname === item.href;

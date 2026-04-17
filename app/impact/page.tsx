@@ -239,15 +239,27 @@ export default function ImpactPage() {
 
         {/* Bottom CTA — for returning users */}
         {!isNewUser && (
-          <motion.button
+          <motion.div
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-            onClick={() => router.push("/map")}
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-            className="w-full bg-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,30%)] text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-black/10 flex items-center justify-center gap-3 text-lg transition-all"
+            className="space-y-4"
           >
-            <MapPin size={20} />
-            Back to Map
-          </motion.button>
+            <button
+              onClick={() => router.push("/map")}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+              className="w-full bg-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,30%)] text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-black/10 flex items-center justify-center gap-3 text-lg transition-all"
+            >
+              <MapPin size={20} />
+              Back to Map
+            </button>
+
+            {/* Solo Developer Personal Credit */}
+            <div className="pt-8 pb-12 flex flex-col items-center gap-2 text-center">
+               <div className="w-10 h-1 px-4 bg-[hsl(155,15%,90%)] rounded-full mb-2" />
+               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[hsl(155,15%,60%)]">Built with Passion by</p>
+               <p className="text-xl font-display font-black text-[hsl(160,10%,20%)]">Dionimar Flores</p>
+               <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(15,80%,65%)]">Solo Developer • Safe Paws Mission</p>
+            </div>
+          </motion.div>
         )}
 
       </div>
