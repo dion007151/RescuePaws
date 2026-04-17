@@ -45,6 +45,9 @@ function MapComponentContent({
       map.on("click", (e: { latlng: { lat: number; lng: number } }) => {
         onMapClick(e.latlng.lat, e.latlng.lng);
       });
+
+      // AUTO-LOCATION: Find the user immediately on load
+      map.locate({ setView: true, maxZoom: 16 });
     });
 
     return () => {
