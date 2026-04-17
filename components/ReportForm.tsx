@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/AuthContext";
-import { compressImage } from "@/lib/utils";
+import { compressToBase64 } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Camera, MapPin, Loader2, Dog, Cat, PawPrint, Heart, Send, CheckCircle2 } from "lucide-react";
+import { X, Camera, MapPin, Loader2, Dog, Cat, PawPrint, Heart, Send, CheckCircle2, Sparkles } from "lucide-react";
 import Image from "next/image";
 
 interface ReportFormProps {
@@ -25,9 +24,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [compressing, setCompressing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState<"idle" | "uploading" | "recording" | "success">("idle");
+  const [status, setStatus] = useState<"idle" | "processing" | "recording" | "success">("idle");
   const [error, setError] = useState("");
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -51,58 +48,19 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
       return;
     }
     setSubmitting(true);
-    setStatus("uploading");
+    setStatus("processing");
     setError("");
 
     try {
       let imageUrl = "";
       if (imageFile) {
-        let readyFile: File = imageFile;
-        
+        // NO-STORAGE MODE: Compress to Base64 directly
         try {
-          setCompressing(true);
-          readyFile = await compressImage(imageFile);
+          imageUrl = await compressToBase64(imageFile);
         } catch (compressErr) {
-          console.warn("Image optimization failed, proceeding with original file:", compressErr);
-          readyFile = imageFile;
-        } finally {
-          setCompressing(false);
+          console.error("Compression failed:", compressErr);
+          throw new Error("Failed to process photo. Try a smaller image.");
         }
-        
-        const storageRef = ref(storage, `reports/${Date.now()}_${readyFile.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, readyFile);
-
-        const uploadPromise = new Promise<string>((resolve, reject) => {
-          setProgress(5);
-          
-          // Safety timeout: 30 seconds
-          const timeout = setTimeout(() => {
-            uploadTask.cancel();
-            reject(new Error("Upload timed out. Is Firebase Storage configured? Check CORS."));
-          }, 30000);
-
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              if (snapshot.totalBytes > 0) {
-                const p = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                setProgress(Math.max(5, p));
-              }
-            },
-            (err) => {
-              clearTimeout(timeout);
-              reject(err);
-            },
-            async () => {
-              clearTimeout(timeout);
-              setProgress(100);
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-              resolve(url);
-            }
-          );
-        });
-
-        imageUrl = await uploadPromise;
       }
 
       setStatus("recording");
@@ -129,21 +87,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
       console.error("Submission error:", err);
       setStatus("idle");
       setSubmitting(false);
-      
-      // Detailed Firebase Storage error mapping
-      if (err.message?.includes("timed out")) {
-        setError("Upload timed out. This often happens due to a missing CORS policy or poor connection.");
-      } else if (err.code === "storage/unauthorized") {
-        setError("Firebase Storage rules are blocking this upload. Please set them to public.");
-      } else if (err.code === "storage/canceled") {
-        setError("Upload was canceled. Please try again.");
-      } else if (err.code === "storage/unknown") {
-        setError("A network or CORS error occurred. Check browser console for details.");
-      } else if (!storage) {
-        setError("Firebase Storage is not initialized in your project.");
-      } else {
-        setError(`Upload failed: ${err.message || "Unknown error"}`);
-      }
+      setError(err.message || "Failed to submit report. Please check your connection.");
     } finally {
       if (status !== "success") {
         setSubmitting(false);
@@ -330,17 +274,17 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
                 </motion.div>
               ) : (
                 <motion.div key="form-actions" exit={{ opacity: 0, scale: 0.95 }}>
-                  {status === "uploading" || status === "recording" ? (
+                  {status === "processing" || status === "recording" ? (
                     <div className="bg-white rounded-[1.5rem] p-6 border border-[hsl(155,15%,95%)] shadow-sm space-y-4">
-                      <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-[hsl(155,15%,50%)]">
-                        <span>{status === "uploading" ? (compressing ? "Optimizing photo..." : "Uploading...") : "Recording on map..."}</span>
-                        <span>{status === "uploading" ? `${progress}%` : "100%"}</span>
+                      <div className="flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest text-[hsl(155,15%,50%)] py-2">
+                        <Loader2 className="animate-spin text-[hsl(15,80%,65%)]" size={16} />
+                        <span>{status === "processing" ? "Processing Photo..." : "Saving to Map..."}</span>
                       </div>
-                      <div className="h-3 bg-[hsl(155,15%,95%)] rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-[hsl(155,15%,95%)] rounded-full overflow-hidden">
                         <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${status === "recording" ? 100 : progress}%` }}
-                          className="h-full bg-emerald-500"
+                          initial={{ width: "30%" }}
+                          animate={{ width: status === "recording" ? "100%" : "60%" }}
+                          className="h-full bg-[hsl(15,80%,65%)]"
                         />
                       </div>
                     </div>

@@ -1,7 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -24,12 +23,7 @@ if (!isConfigValid && typeof window !== 'undefined') {
   console.warn("RescuePaws: Firebase API Key is missing or invalid. Authentication features will be disabled. Check your .env.local file.");
 }
 
-if (!firebaseConfig.storageBucket && typeof window !== 'undefined') {
-  console.warn("RescuePaws: Firebase Storage Bucket is NOT configured. Picture uploads will fail. Ensure NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET is set in .env.local");
-}
-
 // Fallback for build time / server side when app might not be initialized
 export const auth = (app ? getAuth(app) : null) as any;
 export const db = (app ? getFirestore(app) : null) as any;
-export const storage = (app ? getStorage(app) : null) as any;
 export default app;
