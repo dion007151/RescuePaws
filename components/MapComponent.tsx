@@ -8,6 +8,7 @@ interface MapComponentProps {
   onMapClick: (lat: number, lng: number) => void;
   onMarkerClick: (report: Report) => void;
   center?: [number, number];
+  focusLocation?: [number, number] | null;
 }
 
 function MapComponentContent({
@@ -15,6 +16,7 @@ function MapComponentContent({
   onMapClick,
   onMarkerClick,
   center = [14.5995, 120.9842],
+  focusLocation,
 }: MapComponentProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<any>(null);
@@ -52,6 +54,15 @@ function MapComponentContent({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!leafletMapRef.current || !focusLocation) return;
+    
+    leafletMapRef.current.flyTo(focusLocation, 18, {
+      duration: 1.5,
+      easeLinearity: 0.25
+    });
+  }, [focusLocation]);
 
   useEffect(() => {
     if (!leafletMapRef.current) return;

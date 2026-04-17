@@ -131,6 +131,7 @@ export default function MapPage() {
         >
           <MapComponent
             reports={filteredReports}
+            focusLocation={selectedReport ? [selectedReport.latitude, selectedReport.longitude] : null}
             onMapClick={(lat, lng) => {
               setClickedLocation({ lat, lng });
               setSelectedReport(null);
