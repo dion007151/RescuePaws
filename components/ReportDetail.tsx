@@ -5,7 +5,7 @@ import { db } from "@/lib/firebase";
 import { Report } from "@/lib/types";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles } from "lucide-react";
+import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles, Phone, MessageSquare, User } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface ReportDetailProps {
@@ -160,6 +160,38 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
                 {createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>
             </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 border border-[hsl(155,15%,95%)] shadow-sm">
+             <div className="flex items-start justify-between">
+                <div className="flex-1">
+                   <div className="flex items-center gap-2 text-[hsl(155,15%,50%)] mb-2">
+                      <User size={14} className="text-emerald-500" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">Reported by</p>
+                   </div>
+                   <p className="font-black text-[hsl(160,10%,20%)]">
+                      {report.reporterName || "Safe Paws Hero"}
+                   </p>
+                </div>
+                {report.reporterPhone && (
+                   <div className="flex gap-2">
+                      <a 
+                        href={`tel:${report.reporterPhone}`}
+                        className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                        title="Call Reporter"
+                      >
+                         <Phone size={18} />
+                      </a>
+                      <a 
+                        href={`sms:${report.reporterPhone}`}
+                        className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                        title="SMS Message"
+                      >
+                         <MessageSquare size={18} />
+                      </a>
+                   </div>
+                )}
+             </div>
           </div>
 
           <div className="bg-white rounded-3xl p-5 border border-[hsl(155,15%,95%)] shadow-sm">

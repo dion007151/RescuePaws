@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PawPrint, Mail, Lock, UserPlus, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
+import { PawPrint, Mail, Lock, UserPlus, ArrowRight, Loader2, ShieldCheck, User, Phone } from "lucide-react";
 
 import { BackgroundDecoration } from "@/components/BackgroundDecoration";
 
 export default function RegisterPage() {
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -21,6 +24,16 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    
+    // Basic validations
+    if (!fullName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+    if (!phoneNumber.trim()) {
+      setError("Please enter your phone number.");
+      return;
+    }
     if (password !== confirm) {
       setError("Passwords do not match.");
       return;
@@ -29,12 +42,25 @@ export default function RegisterPage() {
       setError("Password must be at least 6 characters.");
       return;
     }
+    
     setLoading(true);
     try {
-      if (!auth) {
-        throw new Error("Firebase is not configured. Please add your API keys to .env.local");
+      if (!auth || !db) {
+        throw new Error("Firebase is not fully configured. Please check your settings.");
       }
-      await createUserWithEmailAndPassword(auth, email, password);
+      
+      // 1. Create User in Firebase Auth
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // 2. Save detailed profile to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email,
+        fullName: fullName.trim(),
+        phoneNumber: phoneNumber.trim(),
+        createdAt: serverTimestamp(),
+      });
+      
       router.push("/map");
     } catch (err: unknown) {
       console.error("Registration error:", err);
@@ -87,6 +113,40 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-[hsl(160,10%,20%)] mb-2 ml-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(155,15%,50%)]" size={18} />
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[hsl(155,15%,90%)] focus:outline-none focus:ring-4 focus:ring-[hsl(155,15%,50%)]/10 focus:border-[hsl(155,15%,50%)] text-[hsl(160,10%,20%)] bg-white/50 transition-all font-medium"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-[hsl(160,10%,20%)] mb-2 ml-1">
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(155,15%,50%)]" size={18} />
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[hsl(155,15%,90%)] focus:outline-none focus:ring-4 focus:ring-[hsl(155,15%,50%)]/10 focus:border-[hsl(155,15%,50%)] text-[hsl(160,10%,20%)] bg-white/50 transition-all font-medium"
+                  placeholder="+1234567890"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-bold text-[hsl(160,10%,20%)] mb-2 ml-1">
                 Email Address

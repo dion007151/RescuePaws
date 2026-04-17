@@ -18,7 +18,7 @@ interface ReportFormProps {
 }
 
 export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [animalType, setAnimalType] = useState<"dog" | "cat" | "other">("dog");
   const [condition, setCondition] = useState<"injured" | "hungry" | "sick">("hungry");
   const [description, setDescription] = useState("");
@@ -42,7 +42,10 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !profile) {
+      setError("User profile not found. Please log in again.");
+      return;
+    }
     if (!description.trim()) {
       setError("Please add a little description.");
       return;
@@ -96,6 +99,8 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
       setStatus("recording");
       await addDoc(collection(db, "reports"), {
         userId: user.uid,
+        reporterName: profile.fullName,
+        reporterPhone: profile.phoneNumber,
         animalType,
         condition,
         description: description.trim(),
