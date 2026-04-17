@@ -73,9 +73,14 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         const uploadTask = uploadBytesResumable(storageRef, readyFile);
 
         const uploadPromise = new Promise<string>((resolve, reject) => {
-          // Initialize progress slightly higher to show activity immediately
           setProgress(5);
           
+          // Safety timeout: 30 seconds
+          const timeout = setTimeout(() => {
+            uploadTask.cancel();
+            reject(new Error("Upload timed out. Is Firebase Storage configured? Check CORS."));
+          }, 30000);
+
           uploadTask.on(
             "state_changed",
             (snapshot) => {
@@ -84,8 +89,12 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
                 setProgress(Math.max(5, p));
               }
             },
-            (err) => reject(err),
+            (err) => {
+              clearTimeout(timeout);
+              reject(err);
+            },
             async () => {
+              clearTimeout(timeout);
               setProgress(100);
               const url = await getDownloadURL(uploadTask.snapshot.ref);
               resolve(url);
@@ -119,15 +128,21 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
     } catch (err: any) {
       console.error("Submission error:", err);
       setStatus("idle");
-      // More specific error messages
-      if (err.code === "storage/unauthorized") {
-        setError("Permission denied. The storage settings might be incorrect.");
+      setSubmitting(false);
+      
+      // Detailed Firebase Storage error mapping
+      if (err.message?.includes("timed out")) {
+        setError("Upload timed out. This often happens due to a missing CORS policy or poor connection.");
+      } else if (err.code === "storage/unauthorized") {
+        setError("Firebase Storage rules are blocking this upload. Please set them to public.");
       } else if (err.code === "storage/canceled") {
-        setError("Upload canceled. Please try again.");
+        setError("Upload was canceled. Please try again.");
+      } else if (err.code === "storage/unknown") {
+        setError("A network or CORS error occurred. Check browser console for details.");
       } else if (!storage) {
-        setError("Firebase Storage is not configured. Please check your settings.");
+        setError("Firebase Storage is not initialized in your project.");
       } else {
-        setError("Failed to submit report. Please check your connection and try again.");
+        setError(`Upload failed: ${err.message || "Unknown error"}`);
       }
     } finally {
       if (status !== "success") {
