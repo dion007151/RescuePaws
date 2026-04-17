@@ -147,35 +147,34 @@ export default function MapComponent({
     <div className="relative w-full h-full group">
       <div ref={mapRef} className="w-full h-full z-0" />
       
-      {/* Custom Controls */}
-      <div className="absolute right-6 bottom-32 z-[400] flex flex-col gap-3">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleLocate}
-          disabled={isLocating}
-          aria-label="Find my location"
-          className="w-14 h-14 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-[hsl(160,10%,20%)] transition-colors hover:text-[hsl(15,80%,65%)] disabled:opacity-50 border border-white/50 backdrop-blur-md bg-white/90"
-        >
-          <Crosshair size={24} className={isLocating ? "animate-spin" : ""} />
-        </motion.button>
+      {/* GPS Locate Button — positioned separately, always visible */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={handleLocate}
+        disabled={isLocating}
+        aria-label="Find my location"
+        className="absolute left-4 bottom-4 z-[400] w-14 h-14 bg-white/95 rounded-2xl shadow-2xl flex items-center justify-center text-[hsl(160,10%,20%)] transition-colors hover:text-[hsl(15,80%,65%)] disabled:opacity-50 border border-white/50 backdrop-blur-md"
+      >
+        <Crosshair size={24} className={isLocating ? "animate-spin" : ""} />
+      </motion.button>
 
-        <div className="flex flex-col bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
-          <button
-            onClick={handleZoomIn}
-            aria-label="Zoom In"
-            className="w-14 h-14 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white hover:text-[hsl(15,80%,65%)] transition-colors border-b border-white/50"
-          >
-            <Plus size={24} />
-          </button>
-          <button
-            onClick={handleZoomOut}
-            aria-label="Zoom Out"
-            className="w-14 h-14 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white hover:text-[hsl(15,80%,65%)] transition-colors"
-          >
-            <Minus size={24} />
-          </button>
-        </div>
+      {/* Zoom Controls — right side, low enough to always be in view */}
+      <div className="absolute right-4 bottom-4 z-[400] flex flex-col bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
+        <button
+          onClick={handleZoomIn}
+          aria-label="Zoom In"
+          className="w-12 h-12 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white hover:text-[hsl(15,80%,65%)] transition-colors border-b border-white/50"
+        >
+          <Plus size={20} />
+        </button>
+        <button
+          onClick={handleZoomOut}
+          aria-label="Zoom Out"
+          className="w-12 h-12 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white hover:text-[hsl(15,80%,65%)] transition-colors"
+        >
+          <Minus size={20} />
+        </button>
       </div>
     </div>
   );
