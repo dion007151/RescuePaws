@@ -7,9 +7,11 @@ import { Map, Heart, PawPrint, User, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export default function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
 
   if (!user) return null;
@@ -22,6 +24,7 @@ export default function Navigation() {
 
   async function handleLogout() {
     await signOut(auth);
+    router.push("/login");
   }
 
   return (
@@ -89,6 +92,13 @@ export default function Navigation() {
             </Link>
           );
         })}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center justify-center gap-1 text-[hsl(155,15%,50%)] hover:text-red-500 transition-all"
+        >
+          <LogOut size={24} />
+          <span className="text-[10px] font-black uppercase tracking-widest">Exit</span>
+        </button>
       </nav>
     </>
   );

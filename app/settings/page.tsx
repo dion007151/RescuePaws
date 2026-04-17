@@ -6,6 +6,7 @@ import {
   User, Bell, Lock, Shield, CircleHelp, LogOut,
   ChevronRight, X, Eye, EyeOff, CheckCircle2, AlertTriangle, PawPrint, Mail
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { auth } from "@/lib/firebase";
 import {
@@ -20,6 +21,7 @@ type Modal = "password" | "delete" | "support" | null;
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [openModal, setOpenModal] = useState<Modal>(null);
   const [notifications, setNotifications] = useState(true);
 
