@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito, Fraunces } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/AuthContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { LazyMotion, domAnimation } from "framer-motion";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import Script from "next/script";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -21,7 +23,35 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "RescuePaws – Stray Animal Rescue Map",
-  description: "Report and rescue stray animals in your community.",
+  description:
+    "Report and rescue stray animals in your community. Real-time map, GPS tracking, and rescue missions — all free.",
+  keywords: ["animal rescue", "stray animals", "rescue map", "pets", "community"],
+  authors: [{ name: "Dionimar Flores" }],
+  creator: "Dionimar Punzalan Flores",
+  // PWA / App meta
+  applicationName: "RescuePaws",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "RescuePaws",
+  },
+  formatDetection: { telephone: false },
+  openGraph: {
+    type: "website",
+    title: "RescuePaws – Stray Animal Rescue Map",
+    description: "Help rescue stray animals in your community using real-time GPS mapping.",
+    siteName: "RescuePaws",
+  },
+};
+
+// Viewport + PWA theme color (separate export — Next.js 13+ requirement)
+export const viewport: Viewport = {
+  themeColor: "#f8947b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover", // Respects notch/home-bar safe areas
 };
 
 export default function RootLayout({
@@ -31,12 +61,48 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${nunito.variable} ${fraunces.variable} font-nunito antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Apple PWA icons */}
+        <link rel="apple-touch-icon" href="/icons/icon-512.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" />
+        {/* Splash screen color for iOS */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
+      <body
+        className={`${nunito.variable} ${fraunces.variable} font-nunito antialiased`}
+        suppressHydrationWarning
+      >
         <AuthProvider>
           <LazyMotion features={domAnimation}>
             <LayoutWrapper>{children}</LayoutWrapper>
+            {/* PWA install prompt — shows after 2s on supported browsers */}
+            <PWAInstallPrompt />
           </LazyMotion>
         </AuthProvider>
+
+        {/* Service Worker registration */}
+        <Script
+          id="sw-register"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(reg) {
+                      console.log('[RescuePaws] SW registered:', reg.scope);
+                    })
+                    .catch(function(err) {
+                      console.warn('[RescuePaws] SW registration failed:', err);
+                    });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
