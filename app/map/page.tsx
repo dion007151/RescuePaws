@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Report } from "@/lib/types";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { PawPrint, LogOut, Filter, Info, Search, Heart, ShieldCheck, Loader2 } from "lucide-react";
+import { PawPrint, LogOut, Filter, Info, Search, Heart, ShieldCheck, Loader2, MapPin } from "lucide-react";
 import Link from "next/link";
 
 // Dynamically import heavy modals to speed up initial load
@@ -286,6 +286,10 @@ export default function MapPage() {
                             {report.condition}
                           </span>
                         </div>
+                        <p className="text-[10px] text-[hsl(15,80%,65%)] font-black italic mb-1 line-clamp-1 flex items-center gap-1">
+                           <MapPin size={10} />
+                           {report.address || "Finding location..."}
+                        </p>
                         <p className="text-xs text-[hsl(155,15%,50%)] font-medium line-clamp-1 mb-2">{report.description}</p>
                         
                         <div className="flex items-center gap-2">

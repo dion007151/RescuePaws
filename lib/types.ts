@@ -17,6 +17,7 @@ export interface Report {
   imageUrl?: string;
   latitude: number;
   longitude: number;
+  address?: string;
   status: "pending" | "rescued";
   createdAt: Date;
 }
@@ -31,6 +32,7 @@ export interface NewReport {
   imageUrl?: string;
   latitude: number;
   longitude: number;
+  address?: string;
   status: "pending";
   createdAt: Date;
 }

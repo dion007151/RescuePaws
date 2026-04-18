@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, memo } from "react";
 import { Report } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Crosshair, Plus, Minus } from "lucide-react";
+import { Crosshair, Plus, Minus, MapPin } from "lucide-react";
 
 interface MapComponentProps {
   reports: Report[];
@@ -22,6 +22,7 @@ function MapComponentContent({
   const leafletMapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const [isLocating, setIsLocating] = useState(false);
+  const [showLocatingOverlay, setShowLocatingOverlay] = useState(false);
 
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
@@ -46,8 +47,22 @@ function MapComponentContent({
         onMapClick(e.latlng.lat, e.latlng.lng);
       });
 
-      // AUTO-LOCATION: Find the user immediately on load
-      map.locate({ setView: true, maxZoom: 16 });
+      // AUTO-LOCATION: Find the user immediately on load if no focusLocation is provided
+      if (!focusLocation) {
+        setShowLocatingOverlay(true);
+        map.locate({ setView: true, maxZoom: 16 });
+        
+        map.on("locationfound", () => {
+          setShowLocatingOverlay(false);
+        });
+        
+        map.on("locationerror", () => {
+          setShowLocatingOverlay(false);
+        });
+        
+        // Timeout to hide overlay if GPS is too slow
+        setTimeout(() => setShowLocatingOverlay(false), 5000);
+      }
     });
 
     return () => {
@@ -78,7 +93,6 @@ function MapComponentContent({
         const isRescued = report.status === "rescued";
         const color = isRescued ? "#10b981" : "#f8947b";
         
-        // OPTIMIZATION: Removed lazy loading for Base64 icons to ensure instant visibility
         const photoHtml = report.imageUrl 
           ? `<img src="${report.imageUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;" />`
           : `<span style="font-size: 20px;">${report.animalType === "dog" ? "🐶" : report.animalType === "cat" ? "🐱" : "🐾"}</span>`;
@@ -195,6 +209,28 @@ function MapComponentContent({
   return (
     <div className="relative w-full h-full group overflow-hidden rounded-[2.5rem] border-4 border-white shadow-inner">
       <div ref={mapRef} className="w-full h-full z-0" />
+      
+      {/* Locating Overlay */}
+      <AnimatePresence>
+        {showLocatingOverlay && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[500] pointer-events-none"
+          >
+            <div className="glass px-8 py-4 rounded-[2rem] border-white shadow-2xl flex flex-col items-center gap-3 text-center min-w-[200px]">
+              <div className="w-12 h-12 rounded-2xl bg-[hsl(15,80%,65%)] flex items-center justify-center verified-ring">
+                 <MapPin size={24} className="text-white animate-bounce" />
+              </div>
+              <div>
+                <p className="font-black text-[hsl(160,10%,20%)] italic">Locating You...</p>
+                <p className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest mt-1">Securing GPS Signal</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* GPS Locate Button — positioned separately, always visible */}
       <motion.button

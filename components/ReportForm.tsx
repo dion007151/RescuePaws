@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/AuthContext";
 import { compressToBase64 } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Camera, MapPin, Loader2, Dog, Cat, PawPrint, Heart, Send, CheckCircle2, Sparkles } from "lucide-react";
+import { X, Camera, MapPin, Loader2, Dog, Cat, PawPrint, Heart, Send, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 
 interface ReportFormProps {
@@ -21,11 +21,38 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
   const [animalType, setAnimalType] = useState<"dog" | "cat" | "other">("dog");
   const [condition, setCondition] = useState<"injured" | "hungry" | "sick">("hungry");
   const [description, setDescription] = useState("");
+  const [address, setAddress] = useState<string>("Locating legit address...");
+  const [isGeocoding, setIsGeocoding] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "processing" | "recording" | "success">("idle");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function reverseGeocode() {
+      setIsGeocoding(true);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+          headers: {
+            'User-Agent': 'RescuePaws (rescuepaws@example.com)'
+          }
+        });
+        const data = await res.json();
+        const legitName = data.display_name || "Unknown Territory";
+        // Clean up the address - take first few parts for clarity
+        const parts = legitName.split(', ');
+        const shortName = parts.slice(0, 3).join(', ');
+        setAddress(shortName || legitName);
+      } catch (err) {
+        console.error("Geocoding failed:", err);
+        setAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+      } finally {
+        setIsGeocoding(false);
+      }
+    }
+    reverseGeocode();
+  }, [lat, lng]);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -54,7 +81,6 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
     try {
       let imageUrl = "";
       if (imageFile) {
-        // NO-STORAGE MODE: Compress to Base64 directly
         try {
           imageUrl = await compressToBase64(imageFile);
         } catch (compressErr) {
@@ -74,6 +100,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         imageUrl,
         latitude: lat,
         longitude: lng,
+        address: address, // Store the legit address
         status: "pending",
         createdAt: Timestamp.now(),
       });
@@ -102,93 +129,118 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-md"
       />
       
       <motion.div
         initial={{ opacity: 0, y: 100, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 100, scale: 0.95 }}
-        className="bg-[hsl(45,30%,98%)] rounded-[2.5rem] shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col relative z-20 border border-white/50"
+        className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col relative z-20 border border-white"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 pb-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center shadow-lg shadow-[hsl(15,80%,65%)]/20">
-              <PawPrint className="text-white" size={20} />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl font-black text-[hsl(160,10%,20%)]">New Report</h2>
-              <div className="flex items-center gap-1.5 text-[hsl(155,15%,50%)]">
-                <MapPin size={10} />
-                <p className="text-[10px] font-black tracking-widest uppercase">
-                  {lat.toFixed(4)}, {lng.toFixed(4)}
-                </p>
-              </div>
-            </div>
+        {/* Header Section */}
+        <div className="p-8 pb-4 flex items-start justify-between">
+          <div className="flex items-center gap-4">
+             <div className="w-14 h-14 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-[hsl(15,80%,65%)]/30 verified-ring">
+                <PawPrint size={28} />
+             </div>
+             <div>
+                <h2 className="font-display text-3xl font-black text-[hsl(160,10%,20%)] leading-tight">Secure Rescue</h2>
+                <div className="flex items-center gap-2 mt-1">
+                   <div className={`w-2 h-2 rounded-full ${isGeocoding ? 'bg-[hsl(15,80%,65%)] animate-pulse' : 'bg-emerald-500'}`} />
+                   <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)]">
+                      {isGeocoding ? "Identifying Neutral Zone..." : "Mission Coordinates Locked"}
+                   </p>
+                </div>
+             </div>
           </div>
           <button
             onClick={onClose}
-            type="button"
-            className="w-10 h-10 rounded-full bg-white hover:bg-[hsl(155,15%,95%)] flex items-center justify-center text-[hsl(155,15%,50%)] transition shadow-sm"
+            className="w-12 h-12 rounded-full bg-white/50 hover:bg-white flex items-center justify-center text-[hsl(155,15%,50%)] transition shadow-sm border border-white/60"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
+        {/* Legit Location Capsule */}
+        <div className="px-8 mb-4">
+           <div className="glass px-5 py-3 rounded-2xl border-white/60 flex items-center gap-3 shadow-sm bg-white/40">
+              <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-orange-500">
+                 <MapPin size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                 <p className="text-[9px] font-black uppercase tracking-widest text-orange-500">Legit Location Target</p>
+                 <p className="text-xs font-bold text-[hsl(160,10%,20%)] truncate italic">
+                    {isGeocoding ? "Scanning map..." : address}
+                 </p>
+              </div>
+           </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-8 pt-2 space-y-8 overflow-y-auto custom-scrollbar">
           {error && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl text-sm font-bold flex items-center gap-2"
+              className="bg-red-50 border border-red-100 text-red-600 px-5 py-4 rounded-[1.5rem] text-sm font-bold flex items-center gap-3 shadow-sm"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+              <div className="w-2 h-2 rounded-full bg-red-600" />
               {error}
             </motion.div>
           )}
 
-          {/* Animal Type */}
-          <div>
-            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-3 ml-1">
-              What kind of animal?
+          {/* Species Selection */}
+          <div className="space-y-4">
+            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+              Identify Species
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-4">
               {(["dog", "cat", "other"] as const).map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => setAnimalType(type)}
-                  className={`py-3 rounded-[1.5rem] border-2 font-black text-[10px] uppercase tracking-wider transition-all flex flex-col items-center gap-2 ${
+                  className={`group relative py-6 rounded-[2rem] border-2 font-black text-[11px] uppercase tracking-widest transition-all overflow-hidden ${
                     animalType === type
-                      ? "border-[hsl(15,80%,65%)] bg-[hsl(15,80%,98%)] text-[hsl(15,80%,65%)] shadow-md translate-y-[-2px]"
-                      : "border-[hsl(155,15%,95%)] bg-white text-[hsl(155,15%,50%)] hover:border-[hsl(155,15%,90%)]"
+                      ? "border-[hsl(15,80%,65%)] bg-white text-[hsl(15,80%,65%)] shadow-xl translate-y-[-4px]"
+                      : "border-white bg-white/40 text-[hsl(155,15%,50%)] hover:bg-white/60"
                   }`}
                 >
-                  <span className="text-2xl">
-                    {type === "dog" ? <Dog size={24} /> : type === "cat" ? <Cat size={24} /> : <PawPrint size={24} />}
-                  </span>
-                  {type}
+                  <div className={`absolute top-0 right-0 w-8 h-8 opacity-5 group-hover:opacity-10 transition-opacity`}>
+                    <PawPrint size={32} />
+                  </div>
+                  <div className="flex flex-col items-center gap-3 relative z-10">
+                    <span className="text-3xl">
+                      {type === "dog" ? <Dog size={32} /> : type === "cat" ? <Cat size={32} /> : <PawPrint size={32} />}
+                    </span>
+                    <span>{type}</span>
+                  </div>
+                  {animalType === type && (
+                    <motion.div
+                      layoutId="species-active"
+                      className="absolute inset-0 bg-[hsl(15,80%,65%)]/5 pointer-events-none"
+                    />
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Condition */}
-          <div>
-            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-3 ml-1">
-              How are they doing?
+          {/* Condition Matrix */}
+          <div className="space-y-4">
+            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+              Condition Assessment
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-4">
               {(["injured", "hungry", "sick"] as const).map((cond) => (
                 <button
                   key={cond}
                   type="button"
                   onClick={() => setCondition(cond)}
-                  className={`py-3 rounded-[1.5rem] border-2 font-black text-[10px] uppercase tracking-wider transition-all ${
+                  className={`py-4 rounded-[1.5rem] border-2 font-black text-[10px] uppercase tracking-widest transition-all ${
                     condition === cond
-                      ? "border-[hsl(15,80%,65%)] bg-[hsl(15,80%,98%)] text-[hsl(15,80%,65%)] shadow-md translate-y-[-2px]"
-                      : "border-[hsl(155,15%,95%)] bg-white text-[hsl(155,15%,50%)] hover:border-[hsl(155,15%,90%)]"
+                      ? "border-[hsl(15,80%,65%)] bg-white text-[hsl(15,80%,65%)] shadow-lg translate-y-[-2px]"
+                      : "border-white bg-white/40 text-[hsl(155,15%,50%)] hover:bg-white/60"
                   }`}
                 >
                   {cond}
@@ -197,106 +249,123 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
             </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-3 ml-1">
-              Details
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full px-5 py-4 rounded-[1.5rem] border border-[hsl(155,15%,95%)] focus:outline-none focus:ring-4 focus:ring-[hsl(15,80%,65%)]/10 focus:border-[hsl(15,80%,65%)] text-[hsl(160,10%,20%)] bg-white/50 transition-all resize-none text-sm font-medium"
-              placeholder="Describe the animal's situation..."
-              required
-              disabled={submitting}
-            />
+          <div className="grid sm:grid-cols-2 gap-8">
+             {/* Description Panel */}
+             <div className="space-y-4">
+               <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+                 Mission Details
+               </label>
+               <textarea
+                 value={description}
+                 onChange={(e) => setDescription(e.target.value)}
+                 rows={5}
+                 className="w-full px-6 py-5 rounded-[2rem] border border-white focus:outline-none focus:ring-4 focus:ring-[hsl(15,80%,65%)]/10 focus:border-[hsl(15,80%,65%)] text-[hsl(160,10%,20%)] bg-white/40 backdrop-blur-sm transition-all resize-none text-sm font-medium shadow-inner"
+                 placeholder="What is the situation? (e.g., Small puppy under the bridge, looks weak...)"
+                 required
+                 disabled={submitting}
+               />
+             </div>
+
+             {/* Photo Intel */}
+             <div className="space-y-4">
+               <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+                 Visual Intelligence
+               </label>
+               {imagePreview ? (
+                 <div className="relative group h-[148px]">
+                   <Image
+                     src={imagePreview}
+                     alt="Preview"
+                     fill
+                     className="object-cover rounded-[2rem] shadow-xl border-4 border-white"
+                   />
+                   <button
+                     type="button"
+                     onClick={() => { setImageFile(null); setImagePreview(null); }}
+                     className="absolute top-3 right-3 bg-black/50 backdrop-blur-md text-white rounded-full w-10 h-10 flex items-center justify-center transition opacity-0 group-hover:opacity-100 hover:bg-red-500 shadow-xl"
+                   >
+                     <X size={20} />
+                   </button>
+                 </div>
+               ) : (
+                 <label className="block border-2 border-dashed border-white rounded-[2rem] h-[148px] text-center cursor-pointer hover:border-[hsl(15,80%,65%)] bg-white/40 hover:bg-white transition-all group shadow-inner">
+                   <div className="h-full flex flex-col items-center justify-center gap-3">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(15,80%,65%)] group-hover:text-white transition-all shadow-sm">
+                        <Camera size={24} />
+                      </div>
+                      <span className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest group-hover:text-[hsl(15,80%,65%)] transition-colors">Deploy Camera</span>
+                   </div>
+                   <input
+                     type="file"
+                     accept="image/*"
+                     onChange={handleImageChange}
+                     className="hidden"
+                     disabled={submitting}
+                   />
+                 </label>
+               )}
+             </div>
           </div>
 
-          {/* Image Upload */}
-          <div>
-            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-3 ml-1">
-              Add a Photo
-            </label>
-            {imagePreview ? (
-              <div className="relative group">
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  width={400}
-                  height={300}
-                  className="w-full h-44 object-cover rounded-[1.5rem] shadow-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => { setImageFile(null); setImagePreview(null); }}
-                  className="absolute top-3 right-3 bg-black/50 backdrop-blur-md text-white rounded-full w-8 h-8 flex items-center justify-center text-xs hover:bg-black/70 transition opacity-0 group-hover:opacity-100"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ) : (
-              <label className="block border-2 border-dashed border-[hsl(155,15%,90%)] rounded-[1.5rem] p-8 text-center cursor-pointer hover:border-[hsl(15,80%,65%)] hover:bg-[hsl(15,80%,98%)] transition group">
-                <div className="w-12 h-12 bg-[hsl(155,15%,95%)] rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-[hsl(15,80%,65%)] group-hover:text-white transition-colors">
-                  <Camera size={24} />
-                </div>
-                <span className="text-sm text-[hsl(155,15%,50%)] font-black uppercase tracking-widest group-hover:text-[hsl(15,80%,65%)] transition-colors">Choose Photo</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  disabled={submitting}
-                />
-              </label>
-            )}
-          </div>
-
-          {/* Submit / Progress Section */}
-          <div className="space-y-4">
+          {/* Submission Layer */}
+          <div className="pt-4 border-t border-white/60">
             <AnimatePresence mode="wait">
               {status === "success" ? (
                 <motion.div
                   key="success"
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-emerald-500 text-white p-8 rounded-[1.5rem] flex flex-col items-center justify-center text-center gap-3 shadow-xl"
+                  className="bg-emerald-500 text-white p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center gap-4 shadow-2xl"
                 >
                   <motion.div
                     initial={{ rotate: -20, scale: 0 }}
                     animate={{ rotate: 0, scale: 1 }}
-                    transition={{ type: "spring", damping: 10 }}
+                    transition={{ type: "spring", damping: 12 }}
                   >
-                    <CheckCircle2 size={48} />
+                    <CheckCircle2 size={56} />
                   </motion.div>
-                  <p className="font-display text-xl font-black italic">Record confirmed!</p>
-                  <p className="text-xs font-black uppercase tracking-widest opacity-80">Check the map now!</p>
+                  <div>
+                    <p className="font-display text-2xl font-black italic">Mission Confirmed!</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mt-1">Satellite updated. Help is on the way.</p>
+                  </div>
                 </motion.div>
               ) : (
-                <motion.div key="form-actions" exit={{ opacity: 0, scale: 0.95 }}>
+                <motion.div key="form-actions" exit={{ opacity: 0, y: 20 }}>
                   {status === "processing" || status === "recording" ? (
-                    <div className="bg-white rounded-[1.5rem] p-6 border border-[hsl(155,15%,95%)] shadow-sm space-y-4">
-                      <div className="flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest text-[hsl(155,15%,50%)] py-2">
-                        <Loader2 className="animate-spin text-[hsl(15,80%,65%)]" size={16} />
-                        <span>{status === "processing" ? "Processing Photo..." : "Saving to Map..."}</span>
-                      </div>
-                      <div className="h-1.5 bg-[hsl(155,15%,95%)] rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: "30%" }}
-                          animate={{ width: status === "recording" ? "100%" : "60%" }}
-                          className="h-full bg-[hsl(15,80%,65%)]"
-                        />
-                      </div>
+                    <div className="bg-white/60 backdrop-blur-md rounded-[2rem] p-8 border border-white shadow-xl space-y-5">
+                       <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                             <Loader2 className="animate-spin text-[hsl(15,80%,65%)]" size={20} />
+                             <span className="text-xs font-black uppercase tracking-widest text-[hsl(160,10%,20%)]">
+                                {status === "processing" ? "Encrypting Visuals..." : "Writing to Data Grid..."}
+                             </span>
+                          </div>
+                          <span className="text-[10px] font-black text-[hsl(15,80%,65%)]">{status === "processing" ? "65%" : "95%"}</span>
+                       </div>
+                       <div className="h-2 bg-white rounded-full overflow-hidden shadow-inner">
+                          <motion.div
+                            initial={{ width: "30%" }}
+                            animate={{ width: status === "recording" ? "100%" : "70%" }}
+                            className="h-full bg-gradient-to-r from-[hsl(15,80%,65%)] to-[hsl(15,80%,75%)]"
+                          />
+                       </div>
                     </div>
                   ) : (
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full bg-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,30%)] text-white font-black py-5 rounded-[1.5rem] transition-all shadow-xl shadow-black/20 hover:shadow-black/40 hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
-                    >
-                      <Send size={18} />
-                      Submit Report
-                    </button>
+                    <div className="flex flex-col items-center gap-6">
+                       <button
+                         type="submit"
+                         disabled={submitting}
+                         className="w-full bg-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,30%)] text-white font-black py-6 rounded-[2.5rem] transition-all shadow-2xl shadow-black/20 hover:shadow-black/40 hover:-translate-y-1.5 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-4 text-xl group"
+                       >
+                         <Send size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                         Broadcast Report
+                       </button>
+                       
+                       <div className="dev-badge w-full justify-center opacity-40">
+                          <ShieldCheck size={12} className="text-[hsl(15,80%,65%)] mr-2" />
+                          <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
+                       </div>
+                    </div>
                   )
                   }
                 </motion.div>

@@ -197,10 +197,13 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
           <div className="bg-white rounded-3xl p-5 border border-[hsl(155,15%,95%)] shadow-sm">
             <div className="flex items-center gap-2 text-[hsl(155,15%,50%)] mb-2">
               <MapPin size={14} className="text-orange-400" />
-              <p className="text-[10px] font-black uppercase tracking-widest">Precise Location</p>
+              <p className="text-[10px] font-black uppercase tracking-widest">Legit Location</p>
             </div>
-            <p className="font-mono text-sm text-[hsl(160,10%,20%)] font-bold">
-              {report.latitude.toFixed(5)}, {report.longitude.toFixed(5)}
+            <p className="font-black text-[hsl(160,10%,20%)] italic mb-2">
+              {report.address || "Fetching address..."}
+            </p>
+            <p className="font-mono text-[9px] text-[hsl(155,15%,50%)] font-bold">
+              GPS: {report.latitude.toFixed(5)}, {report.longitude.toFixed(5)}
             </p>
           </div>
 
