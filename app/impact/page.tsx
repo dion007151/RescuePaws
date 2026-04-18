@@ -257,7 +257,7 @@ export default function ImpactPage() {
                <div className="w-10 h-1 px-4 bg-[hsl(155,15%,90%)] rounded-full mb-2" />
                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[hsl(155,15%,60%)]">Built with Passion by</p>
                <p className="text-xl font-display font-black text-[hsl(160,10%,20%)]">Dionimar Flores</p>
-               <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(15,80%,65%)]">Solo Developer • Safe Paws Mission</p>
+               <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(15,80%,65%)]">Dionimar Flores Solo Developer</p>
             </div>
           </motion.div>
         )}

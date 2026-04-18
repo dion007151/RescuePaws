@@ -297,7 +297,10 @@ export default function MapPage() {
           <div className="p-6 bg-[hsl(155,15%,98%)] border-t border-[hsl(155,15%,90%)] flex items-center justify-between">
              <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-emerald-500" />
-                <span className="text-[10px] font-black text-[hsl(160,10%,20%)] uppercase tracking-widest">Official Rescue System</span>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-[hsl(160,10%,20%)] uppercase tracking-widest leading-none">Dionimar Flores</span>
+                <span className="text-[8px] font-black text-[hsl(155,15%,60%)] uppercase tracking-widest mt-1">Solo Developer</span>
+              </div>
              </div>
              <PawPrint size={16} className="text-[hsl(155,15%,90%)]" />
           </div>

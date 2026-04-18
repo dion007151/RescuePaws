@@ -57,7 +57,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col">
             <span className="font-display text-2xl font-black tracking-tight leading-none">RescuePaws</span>
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">by Dionimar Flores</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">by Dionimar Flores Solo Developer</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -246,7 +246,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-12 border-t border-[hsl(155,15%,90%)] text-center">
         <p className="text-sm font-black text-[hsl(160,10%,20%)] mb-2 uppercase tracking-widest">
-          Solo Developer: Dionimar Flores
+          Dionimar Flores Solo Developer
         </p>
         <p className="text-[10px] font-bold text-[hsl(155,15%,50%)] mb-4">
           Made with ❤️ for animal rescue communities

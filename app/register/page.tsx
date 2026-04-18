@@ -226,7 +226,7 @@ export default function RegisterPage() {
 
         <div className="text-center mt-8 space-y-2">
            <p className="text-[hsl(155,15%,85%)] text-[10px] font-black uppercase tracking-[0.2em]">
-             Solo Developer: Dionimar Flores
+             Dionimar Flores Solo Developer
            </p>
            <p className="text-[hsl(155,15%,90%)] text-[9px] font-black uppercase tracking-widest italic opacity-50">
              Every paw matters • Join the mission
