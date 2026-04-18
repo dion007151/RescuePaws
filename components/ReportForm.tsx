@@ -360,11 +360,6 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
                          <Send size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                          Broadcast Report
                        </button>
-                       
-                       <div className="dev-badge w-full justify-center opacity-40">
-                          <ShieldCheck size={12} className="text-[hsl(15,80%,65%)] mr-2" />
-                          <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
-                       </div>
                     </div>
                   )
                   }

@@ -252,14 +252,12 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* Footer Branding */}
-        <footer className="pt-8 pb-32 flex flex-col items-center text-center gap-4">
-           <div className="dev-badge px-6 py-2.5 shadow-xl shadow-black/5 bg-white/80">
-              <ShieldCheck size={16} className="text-[hsl(15,80%,65%)] mr-2" />
-              <span className="text-xs font-black text-[hsl(160,10%,20%)] premium-glow">Dionimar Flores Solo Developer</span>
+        <footer className="pt-16 pb-32 flex flex-col items-center gap-2 opacity-30 hover:opacity-100 transition-opacity cursor-default">
+           <div className="flex items-center gap-2">
+              <ShieldCheck size={12} className="text-[hsl(15,80%,65%)]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
            </div>
-           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,60%)] opacity-50 italic">
-             Ensuring Animal Welfare through Professional Software
-           </p>
+           <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,60%)]">Ensuring Animal Welfare through Professional Software</p>
         </footer>
 
       </div>

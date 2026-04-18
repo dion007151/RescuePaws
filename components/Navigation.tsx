@@ -37,11 +37,6 @@ export default function Navigation() {
            </div>
            <span className="font-display text-lg font-black text-[hsl(160,10%,20%)] italic">RP</span>
         </div>
-        
-        <div className="dev-badge scale-90">
-           <ShieldCheck size={10} className="text-[hsl(15,80%,65%)] mr-1.5" />
-           <span className="text-[8px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores</span>
-        </div>
       </header>
 
       {/* Desktop Sidebar */}
@@ -80,38 +75,22 @@ export default function Navigation() {
             })}
           </nav>
 
-          <div className="hidden lg:block px-2 mb-4 mt-6">
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="relative p-5 rounded-[2rem] god-card border border-white shadow-2xl overflow-hidden group cursor-default"
-            >
-              <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-30 transition-all duration-500 rotate-12 group-hover:rotate-0">
-                <ShieldCheck size={48} className="text-[hsl(15,80%,65%)]" />
-              </div>
-              
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-4 h-4 bg-[hsl(15,80%,65%)] rounded-full flex items-center justify-center verified-ring">
-                  <ShieldCheck size={10} className="text-white" />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">Verified Developer</span>
-              </div>
-              
-              <p className="text-sm font-black text-[hsl(160,10%,20%)] premium-glow">
-                Dionimar Flores
-              </p>
-              <p className="text-[10px] font-black text-[hsl(155,15%,50%)] uppercase tracking-wider mt-0.5">
-                Solo Developer
-              </p>
-            </motion.div>
-          </div>
+          <div className="mt-auto space-y-4">
+             <button
+               onClick={handleLogout}
+               className="w-full flex items-center gap-4 p-4 rounded-3xl text-[hsl(155,15%,50%)] hover:bg-red-50 hover:text-red-500 transition-all group"
+             >
+               <LogOut size={24} className="group-hover:scale-110 transition-transform" />
+               <span className="font-black text-sm hidden lg:block">Sign Out</span>
+             </button>
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-4 p-4 rounded-3xl text-[hsl(155,15%,50%)] hover:bg-red-50 hover:text-red-500 transition-all mt-auto group"
-          >
-            <LogOut size={24} className="group-hover:scale-110 transition-transform" />
-            <span className="font-black text-sm hidden lg:block">Sign Out</span>
-          </button>
+             <div className="hidden lg:block px-2 pb-2">
+               <div className="flex items-center gap-2 opacity-30 hover:opacity-100 transition-opacity cursor-default">
+                  <ShieldCheck size={12} className="text-[hsl(15,80%,65%)]" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores</span>
+               </div>
+             </div>
+          </div>
         </div>
       </aside>
 
