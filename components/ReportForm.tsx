@@ -113,6 +113,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         imageUrl,
         latitude: lat,
         longitude: lng,
+        teamId: profile?.teamId || null,
         address: address, // Store the legit address
         status: "pending",
         createdAt: Timestamp.now(),
