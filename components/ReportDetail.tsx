@@ -31,7 +31,6 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
     try {
       await updateDoc(doc(db, "reports", report.id), { status: "rescued" });
       
-      // Celebrate!
       confetti({
         particleCount: 150,
         spread: 70,
@@ -114,12 +113,23 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
               </h2>
             </motion.div>
             
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full glass flex items-center justify-center text-[hsl(160,10%,20%)] transition shadow-lg pointer-events-auto hover:bg-white"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex gap-2 pointer-events-auto">
+              {(profile?.isAdmin || user?.uid === report.userId) && (
+                <button
+                  onClick={() => setShowConfirmDelete(true)}
+                  className="w-10 h-10 rounded-full glass flex items-center justify-center text-red-500 transition shadow-lg hover:bg-red-50"
+                  title="Purge Mission"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="w-10 h-10 rounded-full glass flex items-center justify-center text-[hsl(160,10%,20%)] transition shadow-lg hover:bg-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           <div className="absolute bottom-4 left-6">
@@ -275,50 +285,73 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
                 <div className="border-t border-[hsl(155,15%,90%)] pt-6 mt-2">
                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-4 text-center">Operational Controls</p>
                    
-                   {!showConfirmDelete ? (
-                      <button
-                        onClick={() => setShowConfirmDelete(true)}
-                        className="w-full py-4 rounded-[1.5rem] border-2 border-red-100 text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all flex items-center justify-center gap-2"
-                      >
-                         <Trash2 size={14} />
-                         Purge Mission Data
-                      </button>
-                   ) : (
-                      <div className="bg-red-50 rounded-[2rem] p-6 border border-red-100 flex flex-col gap-4">
-                         <div className="flex items-start gap-4 text-red-600">
-                            <AlertTriangle size={20} className="mt-1" />
-                            <div>
-                               <p className="font-black text-sm uppercase tracking-tight">Confirm Data Purge?</p>
-                               <p className="text-[10px] font-bold opacity-70">This will permanently remove this mission from the global grid. This action cannot be undone.</p>
-                            </div>
-                         </div>
-                         <div className="flex gap-2">
-                            <button
-                              onClick={deleteReport}
-                              disabled={deleting}
-                              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-500/20 disabled:opacity-50"
-                            >
-                               {deleting ? "Purging..." : "Confirm Delete"}
-                            </button>
-                            <button
-                              onClick={() => setShowConfirmDelete(false)}
-                              disabled={deleting}
-                              className="flex-1 bg-white text-[hsl(155,15%,50%)] font-black py-3 rounded-xl text-[10px] uppercase tracking-widest border border-[hsl(155,15%,90%)] hover:bg-slate-50 transition-all"
-                            >
-                               Abort
-                            </button>
-                         </div>
-                      </div>
-                   )}
+                   <button
+                     onClick={() => setShowConfirmDelete(true)}
+                     className="w-full py-4 rounded-[1.5rem] border-2 border-red-100 text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                   >
+                      <Trash2 size={14} />
+                      Purge Mission Data
+                   </button>
                 </div>
              )}
 
-             <div className="flex items-center justify-center gap-2 pt-2 opacity-30">
+             <div className="flex items-center justify-center gap-2 pt-2 opacity-30 mt-auto">
                 <ShieldCheck size={14} />
                 <span className="text-[10px] font-black uppercase tracking-widest">RescuePaws Protection</span>
              </div>
           </div>
         </div>
+
+        {/* High-Impact Delete Confirmation Overlay */}
+        <AnimatePresence>
+          {showConfirmDelete && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[2000] glass backdrop-blur-xl flex items-center justify-center p-8 text-center"
+            >
+              <button 
+                onClick={() => setShowConfirmDelete(false)}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white transition-all shadow-lg"
+              >
+                <X size={20} />
+              </button>
+
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-white rounded-[3rem] p-8 shadow-2xl border border-red-100 max-w-sm w-full"
+              >
+                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center text-red-500 mx-auto mb-6">
+                  <AlertTriangle size={32} />
+                </div>
+                <h3 className="font-display text-2xl font-black text-red-600 mb-2 italic">Purge Mission?</h3>
+                <p className="text-xs font-bold text-[hsl(155,15%,50%)] mb-8 leading-relaxed">
+                  This action will permanently remove this mission from the global grid. All logs and metadata will be permanently lost.
+                </p>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={deleteReport}
+                    disabled={deleting}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-widest transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {deleting ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                    {deleting ? "Purging Grid..." : "Confirm Purge"}
+                  </button>
+                  <button
+                    onClick={() => setShowConfirmDelete(false)}
+                    disabled={deleting}
+                    className="w-full bg-white text-[hsl(155,15%,50%)] font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest border border-[hsl(155,15%,90%)] hover:bg-slate-50 transition-all font-black"
+                  >
+                    Abort Mission
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
