@@ -27,6 +27,7 @@ export interface Report {
   status: "pending" | "rescued";
   createdAt: Date;
   sponsorshipCount?: number;
+  teamId?: "guardians" | "patrol" | "frontline";
 }
 
 export interface NewReport {
