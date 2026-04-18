@@ -158,9 +158,9 @@ export default function LandingPage() {
               className="mt-12 flex items-center gap-6"
             >
               <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
+                {['pinay-1.png', 'pinoy-1.png', 'pinay-2.png', 'pinoy-2.png'].map((img, i) => (
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-[hsl(45,30%,98%)] bg-[hsl(155,15%,90%)] relative overflow-hidden">
-                    <Image src={`https://i.pravatar.cc/100?u=${i}`} alt="user" fill className="object-cover" />
+                    <Image src={`/avatars/${img}`} alt={`Rescuer ${i + 1}`} fill className="object-cover" />
                   </div>
                 ))}
               </div>
