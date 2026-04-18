@@ -147,8 +147,8 @@ export default function SettingsPage() {
   const displayName = profile?.fullName || user?.email?.split("@")[0] || "User";
 
   return (
-    <div className="min-h-screen bg-[hsl(45,30%,98%)] p-6 lg:p-12 bg-paw-pattern relative overflow-x-hidden">
-      <div className="max-w-2xl mx-auto space-y-10">
+    <div className="min-h-screen bg-[hsl(45,30%,98%)] px-4 py-6 sm:p-6 lg:p-12 bg-paw-pattern relative overflow-x-hidden">
+      <div className="max-w-lg sm:max-w-xl mx-auto space-y-8 sm:space-y-10">
 
         {/* Header */}
         <header className="flex flex-col gap-1">

@@ -136,40 +136,42 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         initial={{ opacity: 0, y: 100, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 100, scale: 0.95 }}
-        className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col relative z-20 border border-white"
+        className="bg-white/90 backdrop-blur-2xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl w-full sm:max-w-xl overflow-hidden flex flex-col relative z-20 border border-white"
+        style={{ maxHeight: '92dvh' }}
       >
         {/* Header Section */}
-        <div className="p-8 pb-4 flex items-start justify-between">
-          <div className="flex items-center gap-4">
-             <div className="w-14 h-14 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-[hsl(15,80%,65%)]/30 verified-ring">
-                <PawPrint size={28} />
+        <div className="p-5 sm:p-8 pb-3 sm:pb-4 flex items-start justify-between">
+          <div className="flex items-center gap-3">
+             <div className="w-11 h-11 sm:w-14 sm:h-14 bg-[hsl(15,80%,65%)] rounded-xl sm:rounded-2xl flex items-center justify-center text-white shadow-xl shadow-[hsl(15,80%,65%)]/30 verified-ring flex-shrink-0">
+                <PawPrint size={22} className="sm:hidden" />
+                <PawPrint size={28} className="hidden sm:block" />
              </div>
              <div>
-                <h2 className="font-display text-3xl font-black text-[hsl(160,10%,20%)] leading-tight">Secure Rescue</h2>
-                <div className="flex items-center gap-2 mt-1">
-                   <div className={`w-2 h-2 rounded-full ${isGeocoding ? 'bg-[hsl(15,80%,65%)] animate-pulse' : 'bg-emerald-500'}`} />
-                   <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)]">
-                      {isGeocoding ? "Identifying Neutral Zone..." : "Mission Coordinates Locked"}
+                <h2 className="font-display text-2xl sm:text-3xl font-black text-[hsl(160,10%,20%)] leading-tight">Secure Rescue</h2>
+                <div className="flex items-center gap-2 mt-0.5">
+                   <div className={`w-1.5 h-1.5 rounded-full ${isGeocoding ? 'bg-[hsl(15,80%,65%)] animate-pulse' : 'bg-emerald-500'}`} />
+                   <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)]">
+                      {isGeocoding ? "Locating..." : "Coords Locked"}
                    </p>
                 </div>
              </div>
           </div>
           <button
             onClick={onClose}
-            className="w-12 h-12 rounded-full bg-white/50 hover:bg-white flex items-center justify-center text-[hsl(155,15%,50%)] transition shadow-sm border border-white/60"
+            className="w-10 h-10 rounded-full bg-white/50 hover:bg-white flex items-center justify-center text-[hsl(155,15%,50%)] transition shadow-sm border border-white/60 flex-shrink-0"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        {/* Legit Location Capsule */}
-        <div className="px-8 mb-4">
-           <div className="glass px-5 py-3 rounded-2xl border-white/60 flex items-center gap-3 shadow-sm bg-white/40">
-              <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-orange-500">
-                 <MapPin size={18} />
+        {/* Location Capsule */}
+        <div className="px-5 sm:px-8 mb-3 sm:mb-4">
+           <div className="glass px-4 py-2.5 rounded-2xl border-white/60 flex items-center gap-3 shadow-sm bg-white/40">
+              <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center text-orange-500 flex-shrink-0">
+                 <MapPin size={15} />
               </div>
               <div className="flex-1 min-w-0">
-                 <p className="text-[9px] font-black uppercase tracking-widest text-orange-500">Legit Location Target</p>
+                 <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-orange-500">Location Target</p>
                  <p className="text-xs font-bold text-[hsl(160,10%,20%)] truncate italic">
                     {isGeocoding ? "Scanning map..." : address}
                  </p>
@@ -177,7 +179,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
            </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 pt-2 space-y-8 overflow-y-auto custom-scrollbar">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-8 pt-1 sm:pt-2 space-y-5 sm:space-y-8 overflow-y-auto custom-scrollbar">
           {error && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
@@ -189,29 +191,26 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
             </motion.div>
           )}
 
-          {/* Species Selection */}
-          <div className="space-y-4">
-            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+          {/* Species Selection — 3 equal cols on all sizes */}
+          <div className="space-y-3">
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
               Identify Species
             </label>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               {(["dog", "cat", "other"] as const).map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => setAnimalType(type)}
-                  className={`group relative py-6 rounded-[2rem] border-2 font-black text-[11px] uppercase tracking-widest transition-all overflow-hidden ${
+                  className={`group relative py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 font-black text-[10px] sm:text-[11px] uppercase tracking-widest transition-all overflow-hidden ${
                     animalType === type
-                      ? "border-[hsl(15,80%,65%)] bg-white text-[hsl(15,80%,65%)] shadow-xl translate-y-[-4px]"
+                      ? "border-[hsl(15,80%,65%)] bg-white text-[hsl(15,80%,65%)] shadow-xl translate-y-[-3px]"
                       : "border-white bg-white/40 text-[hsl(155,15%,50%)] hover:bg-white/60"
                   }`}
                 >
-                  <div className={`absolute top-0 right-0 w-8 h-8 opacity-5 group-hover:opacity-10 transition-opacity`}>
-                    <PawPrint size={32} />
-                  </div>
-                  <div className="flex flex-col items-center gap-3 relative z-10">
-                    <span className="text-3xl">
-                      {type === "dog" ? <Dog size={32} /> : type === "cat" ? <Cat size={32} /> : <PawPrint size={32} />}
+                  <div className="flex flex-col items-center gap-2 sm:gap-3 relative z-10">
+                    <span className="text-2xl sm:text-3xl">
+                      {type === "dog" ? <Dog size={26} /> : type === "cat" ? <Cat size={26} /> : <PawPrint size={26} />}
                     </span>
                     <span>{type}</span>
                   </div>
@@ -226,18 +225,18 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
             </div>
           </div>
 
-          {/* Condition Matrix */}
-          <div className="space-y-4">
-            <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
-              Condition Assessment
+          {/* Condition Assessment */}
+          <div className="space-y-3">
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+              Condition
             </label>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               {(["injured", "hungry", "sick"] as const).map((cond) => (
                 <button
                   key={cond}
                   type="button"
                   onClick={() => setCondition(cond)}
-                  className={`py-4 rounded-[1.5rem] border-2 font-black text-[10px] uppercase tracking-widest transition-all ${
+                  className={`py-3 sm:py-4 rounded-[1.2rem] sm:rounded-[1.5rem] border-2 font-black text-[9px] sm:text-[10px] uppercase tracking-widest transition-all ${
                     condition === cond
                       ? "border-[hsl(15,80%,65%)] bg-white text-[hsl(15,80%,65%)] shadow-lg translate-y-[-2px]"
                       : "border-white bg-white/40 text-[hsl(155,15%,50%)] hover:bg-white/60"
@@ -249,7 +248,8 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-8">
+          {/* Description + Photo — stacked on mobile, side-by-side on sm+ */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
              {/* Description Panel */}
              <div className="space-y-4">
                <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">

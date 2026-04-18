@@ -86,13 +86,14 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
       />
       
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-[hsl(45,30%,98%)] rounded-[3rem] shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col relative z-20 border border-white"
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="bg-[hsl(45,30%,98%)] rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl w-full sm:max-w-lg overflow-hidden flex flex-col relative z-20 border border-white"
+        style={{ maxHeight: '92dvh' }}
       >
-        {/* Main Image with Overlay Header */}
-        <div className="relative h-64 sm:h-80 w-full overflow-hidden group">
+        {/* Main Image — shorter on mobile */}
+        <div className="relative h-48 sm:h-64 md:h-80 w-full overflow-hidden group flex-shrink-0">
           {report.imageUrl ? (
             <img
               src={report.imageUrl}
@@ -157,7 +158,7 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
           </div>
         </div>
 
-        <div className="p-8 space-y-6 overflow-y-auto">
+        <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 overflow-y-auto custom-scrollbar">
           <AnimatePresence>
             {error && (
               <motion.div

@@ -120,14 +120,14 @@ export default function MapPage() {
   if (!user) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-[hsl(45,30%,98%)] overflow-hidden bg-paw-pattern">
+    <div className="flex flex-col bg-[hsl(45,30%,98%)] overflow-hidden bg-paw-pattern" style={{ height: "100dvh" }}>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden gap-0">
-        {/* Map Area */}
+        {/* Map Area — fills all available space */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex-1 relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white"
+          className="flex-1 relative min-h-0 overflow-hidden rounded-none lg:rounded-[2rem] border-0 lg:border-4 border-white shadow-none lg:shadow-2xl"
         >
           <MapComponent
             reports={filteredReports}
@@ -142,81 +142,71 @@ export default function MapPage() {
             }}
           />
 
-          {/* Map Overlays (Premium Modern Design) */}
-          <div className="absolute top-6 left-6 z-[400] pointer-events-none">
+          {/* Map Hint Overlay — hidden on very small screens to save space */}
+          <div className="absolute top-4 left-4 z-[400] pointer-events-none hidden xs:block sm:block">
             <motion.div 
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="glass px-5 py-3 rounded-[1.8rem] shadow-2xl border-white/60 flex items-center gap-3"
+              className="glass px-3 py-2 sm:px-5 sm:py-3 rounded-[1.4rem] shadow-2xl border-white/60 flex items-center gap-2 sm:gap-3"
             >
-              <div className="w-9 h-9 rounded-2xl bg-[hsl(15,80%,65%)]/10 flex items-center justify-center verified-ring">
-                <Info size={18} className="text-[hsl(15,80%,65%)]" />
+              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-[hsl(15,80%,65%)]/10 flex items-center justify-center verified-ring flex-shrink-0">
+                <Info size={15} className="text-[hsl(15,80%,65%)]" />
               </div>
               <div className="flex flex-col">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)]">Rescue Guide</p>
-                <p className="text-[11px] font-bold text-[hsl(160,10%,20%)]">
-                  Click map to report an animal
+                <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)]">Rescue Guide</p>
+                <p className="text-[10px] font-bold text-[hsl(160,10%,20%)] whitespace-nowrap">
+                  Tap map to report an animal
                 </p>
               </div>
             </motion.div>
           </div>
 
-          <motion.div className="absolute top-6 right-6 z-[400] flex flex-col gap-4">
+          {/* Mini stats — top right */}
+          <motion.div className="absolute top-4 right-4 z-[400] flex flex-col gap-2">
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="glass rounded-[2rem] p-4 shadow-2xl border-white/60 text-center min-w-[90px] relative overflow-hidden group"
+              className="glass rounded-[1.5rem] p-2.5 sm:p-4 shadow-2xl border-white/60 text-center min-w-[64px] sm:min-w-[80px] relative overflow-hidden group"
             >
-              <div className="absolute top-0 right-0 w-8 h-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                <PawPrint size={32} />
-              </div>
-              <div className="flex items-center justify-center mb-1">
-                <Loader2 className="animate-pulse text-[hsl(15,80%,65%)]" size={16} />
-              </div>
-              <p className="text-2xl font-black text-[hsl(160,10%,20%)] leading-none">
+              <p className="text-lg sm:text-2xl font-black text-[hsl(160,10%,20%)] leading-none">
                 {reports.filter((r) => r.status === "pending").length}
               </p>
-              <p className="text-[9px] text-[hsl(15,80%,65%)] font-black uppercase tracking-widest mt-1.5 opacity-80">Pending</p>
+              <p className="text-[8px] sm:text-[9px] text-[hsl(15,80%,65%)] font-black uppercase tracking-widest mt-1 opacity-80">Pending</p>
             </motion.div>
             
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="glass rounded-[2rem] p-4 shadow-2xl border-white/60 text-center min-w-[90px] relative overflow-hidden group"
+              className="glass rounded-[1.5rem] p-2.5 sm:p-4 shadow-2xl border-white/60 text-center min-w-[64px] sm:min-w-[80px] relative overflow-hidden group"
             >
-              <div className="absolute top-0 right-0 w-8 h-8 text-emerald-500 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Heart size={32} />
-              </div>
-              <div className="flex items-center justify-center mb-1 text-emerald-500">
-                <ShieldCheck size={16} />
-              </div>
-              <p className="text-2xl font-black text-[hsl(160,10%,20%)] leading-none">
+              <p className="text-lg sm:text-2xl font-black text-[hsl(160,10%,20%)] leading-none">
                 {reports.filter((r) => r.status === "rescued").length}
               </p>
-              <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1.5 opacity-80">Rescued</p>
+              <p className="text-[8px] sm:text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1 opacity-80">Rescued</p>
             </motion.div>
           </motion.div>
         </motion.div>
 
-        {/* Reports Side Panel */}
+        {/* Reports Side Panel — horizontal scrollable strip on mobile, sidebar on desktop */}
         <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full lg:w-[380px] bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white/60 shadow-xl flex flex-col overflow-hidden h-[400px] lg:h-full lg:min-h-0"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full lg:w-[360px] xl:w-[400px] bg-white/70 backdrop-blur-xl rounded-t-[2rem] lg:rounded-[2.5rem] border-t border-white/60 lg:border shadow-xl flex flex-col overflow-hidden h-[44vh] sm:h-[38vh] lg:h-full lg:min-h-0 flex-shrink-0"
         >
           {/* Panel Header */}
-          <div className="p-6 pb-2">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-2xl font-black text-[hsl(160,10%,20%)]">Recent Reports</h2>
+          <div className="p-4 sm:p-6 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display text-xl sm:text-2xl font-black text-[hsl(160,10%,20%)]">Reports</h2>
               <div className="w-8 h-8 rounded-xl bg-[hsl(155,15%,90%)] flex items-center justify-center">
-                <Search size={16} className="text-[hsl(155,15%,50%)]" />
+                <Search size={14} className="text-[hsl(155,15%,50%)]" />
               </div>
             </div>
             
-            <div className="flex p-1 bg-[hsl(155,15%,95%)] rounded-[1.2rem] gap-1">
+            {/* Filter tabs — compact on mobile */}
+            <div className="flex p-1 bg-[hsl(155,15%,95%)] rounded-[1rem] gap-0.5">
               {(["all", "my", "pending", "rescued"] as const).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`flex-1 py-2 rounded-[0.8rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+                  className={`flex-1 py-1.5 sm:py-2 rounded-[0.7rem] text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${
                     filter === f
                       ? "bg-white text-[hsl(160,10%,20%)] shadow-sm"
                       : "text-[hsl(155,15%,50%)] hover:text-[hsl(160,10%,20%)]"
