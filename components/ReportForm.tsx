@@ -8,6 +8,7 @@ import { compressToBase64 } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Camera, MapPin, Loader2, Dog, Cat, PawPrint, Heart, Send, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import confetti from "canvas-confetti";
 
 interface ReportFormProps {
   lat: number;
@@ -106,9 +107,19 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
       });
 
       setStatus("success");
+      
+      // Professional Celebration!
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ef8b61', '#10b981', '#ffffff'],
+        zIndex: 2000
+      });
+
       setTimeout(() => {
         onSuccess();
-      }, 1500);
+      }, 2000);
 
     } catch (err: any) {
       console.error("Submission error:", err);

@@ -173,6 +173,49 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Global Mission Progress Row */}
+      <section className="px-6 max-w-7xl mx-auto -mt-10 mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[hsl(160,10%,20%)] rounded-[3rem] p-8 lg:p-12 text-white relative overflow-hidden shadow-2xl border border-white/5"
+        >
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="max-w-md">
+              <div className="flex items-center gap-2 text-[hsl(15,80%,65%)] font-black uppercase tracking-[0.4em] text-[10px] mb-4">
+                <Target size={14} /> National Rescue Mission
+              </div>
+              <h2 className="font-display text-4xl font-black italic mb-4">5,000 Paws Saved.</h2>
+              <p className="text-white/40 text-sm font-bold leading-relaxed">Join the movement to rescue and secure 5,000 stray animals across the Philippines by 2026.</p>
+            </div>
+            
+            <div className="flex-1 w-full max-w-xl space-y-4">
+              <div className="flex justify-between items-end mb-2">
+                 <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-black italic">1,245</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Rescued Today</span>
+                 </div>
+                 <p className="text-[10px] font-black text-[hsl(15,80%,65%)] uppercase tracking-[0.3em] animate-pulse">24.9% Completed</p>
+              </div>
+              <div className="h-4 bg-white/10 rounded-full p-1 shadow-inner">
+                 <motion.div 
+                   initial={{ width: 0 }}
+                   animate={{ width: "24.9%" }}
+                   className="h-full bg-gradient-to-r from-emerald-500 to-[hsl(15,80%,65%)] rounded-full relative overflow-hidden"
+                 >
+                    <motion.div 
+                      animate={{ x: ["-100%", "200%"] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    />
+                 </motion.div>
+              </div>
+            </div>
+          </div>
+          <PawPrint className="absolute -right-20 -top-10 w-64 h-64 text-white/[0.03] -rotate-12 pointer-events-none" />
+        </motion.div>
+      </section>
+
       {/* Modern Features Grid */}
       <section className="py-32 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
