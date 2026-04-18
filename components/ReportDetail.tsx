@@ -114,7 +114,7 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
             </motion.div>
             
             <div className="flex gap-2 pointer-events-auto">
-              {(profile?.isAdmin || user?.uid === report.userId) && (
+              {(user?.email === 'dionimarflores9@gmail.com' || profile?.isAdmin) && (
                 <button
                   onClick={() => setShowConfirmDelete(true)}
                   className="w-10 h-10 rounded-full glass flex items-center justify-center text-red-500 transition shadow-lg hover:bg-red-50"
@@ -281,7 +281,7 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
           
           <div className="flex flex-col gap-3 py-4">
              {/* Admin/Owner Actions */}
-             {(profile?.isAdmin || user?.uid === report.userId) && (
+             {(user?.email === 'dionimarflores9@gmail.com' || profile?.isAdmin) && (
                 <div className="border-t border-[hsl(155,15%,90%)] pt-6 mt-2">
                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-4 text-center">Operational Controls</p>
                    
