@@ -6,7 +6,7 @@ import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PawPrint, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { PawPrint, Mail, Lock, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 
 import { BackgroundDecoration } from "@/components/BackgroundDecoration";
 
@@ -135,10 +135,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="text-center mt-8 space-y-2">
-           <p className="text-[hsl(155,15%,85%)] text-[10px] font-black uppercase tracking-[0.2em]">
-             Dionimar Flores Solo Developer
-           </p>
+        <div className="text-center mt-12 flex flex-col items-center gap-3">
+           <div className="dev-badge scale-90">
+             <ShieldCheck size={12} className="text-[hsl(15,80%,65%)] mr-1.5" />
+             <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
+           </div>
            <p className="text-[hsl(155,15%,90%)] text-[9px] font-black uppercase tracking-widest italic opacity-50">
              Every paw matters • Together we save lives
            </p>

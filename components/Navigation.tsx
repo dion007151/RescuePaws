@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Map, Heart, PawPrint, User, LogOut, Settings } from "lucide-react";
+import { Map, Heart, PawPrint, User, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -39,9 +39,21 @@ export default function Navigation() {
             <span className="font-display text-xl font-black text-[hsl(160,10%,20%)] hidden lg:block">RescuePaws</span>
           </div>
 
-          <div className="hidden lg:block px-2 mb-6 -mt-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">Dionimar Flores</p>
-            <p className="text-xs font-black text-[hsl(160,10%,20%)] mt-1">Solo Developer</p>
+          <div className="hidden lg:block px-2 mb-8 -mt-6">
+            <div className="relative p-4 rounded-3xl bg-white/40 border border-white/50 shadow-sm overflow-hidden group">
+              <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                <ShieldCheck size={40} className="text-[hsl(15,80%,65%)]" />
+              </div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">Solo Developer</span>
+                <div className="w-3.5 h-3.5 bg-[hsl(15,80%,65%)] rounded-full flex items-center justify-center verified-ring">
+                  <ShieldCheck size={8} className="text-white" />
+                </div>
+              </div>
+              <p className="text-sm font-black text-[hsl(160,10%,20%)] hover:text-[hsl(15,80%,65%)] transition-colors cursor-default">
+                Dionimar Flores
+              </p>
+            </div>
           </div>
 
           <nav className="flex-1 space-y-2">

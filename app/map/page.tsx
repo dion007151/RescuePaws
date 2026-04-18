@@ -294,15 +294,16 @@ export default function MapPage() {
           </div>
           
           {/* Sidebar Footer */}
-          <div className="p-6 bg-[hsl(155,15%,98%)] border-t border-[hsl(155,15%,90%)] flex items-center justify-between">
-             <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-emerald-500" />
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-[hsl(160,10%,20%)] uppercase tracking-widest leading-none">Dionimar Flores</span>
-                <span className="text-[8px] font-black text-[hsl(155,15%,60%)] uppercase tracking-widest mt-1">Solo Developer</span>
-              </div>
+          <div className="p-6 bg-white/50 border-t border-[hsl(155,15%,92%)] flex flex-col items-center gap-3">
+             <div className="dev-badge w-full justify-center scale-90">
+                <ShieldCheck size={12} className="text-[hsl(15,80%,65%)] mr-1.5" />
+                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
+                <div className="ml-1.5 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
              </div>
-             <PawPrint size={16} className="text-[hsl(155,15%,90%)]" />
+             <div className="flex items-center gap-2 opacity-30">
+                <PawPrint size={12} className="text-[hsl(155,15%,50%)]" />
+                <span className="text-[8px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)]">Verified Mission Platform</span>
+             </div>
           </div>
         </motion.div>
       </div>

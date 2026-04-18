@@ -57,7 +57,10 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col">
             <span className="font-display text-2xl font-black tracking-tight leading-none">RescuePaws</span>
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">by Dionimar Flores Solo Developer</span>
+            <div className="dev-badge mt-1 scale-75 origin-left">
+              <ShieldCheck size={10} className="text-[hsl(15,80%,65%)] mr-1" />
+              <span className="text-[8px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -243,17 +246,26 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-[hsl(155,15%,90%)] text-center">
-        <p className="text-sm font-black text-[hsl(160,10%,20%)] mb-2 uppercase tracking-widest">
-          Dionimar Flores Solo Developer
-        </p>
-        <p className="text-[10px] font-bold text-[hsl(155,15%,50%)] mb-4">
-          Made with ❤️ for animal rescue communities
-        </p>
-        <p className="text-[10px] text-[hsl(155,15%,90%)] uppercase font-black tracking-[0.2em]">
-          © 2026 RescuePaws System
-        </p>
+      <footer className="py-16 border-t border-[hsl(155,15%,92%)] bg-white/30 backdrop-blur-sm relative overflow-hidden">
+        <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 relative z-10 font-bold">
+          <div className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center">
+                <PawPrint className="text-white" size={16} />
+             </div>
+             <span className="font-display text-xl font-black">RescuePaws</span>
+          </div>
+          
+          <div className="dev-badge">
+             <ShieldCheck size={14} className="text-[hsl(15,80%,65%)] mr-2" />
+             <span className="text-[10px] font-black uppercase tracking-[0.1em]">Dionimar Flores Solo Developer</span>
+             <div className="ml-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          </div>
+
+          <p className="text-[10px] text-[hsl(155,15%,60%)] uppercase tracking-[0.3em] font-black text-center">
+            Handcrafted with ❤️ & Purpose <br/>
+            <span className="mt-2 block opacity-50 font-black">© 2026 Production Environment</span>
+          </p>
+        </div>
       </footer>
     </div>
   );
