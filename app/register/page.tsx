@@ -275,10 +275,13 @@ export default function RegisterPage() {
                     className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] focus:ring-[hsl(155,15%,50%)] cursor-pointer"
                   />
                 </div>
-                <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed">
+                <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed flex-1">
                   I agree to the <button
                     type="button"
-                    onClick={() => setShowTerms(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowTerms(true);
+                    }}
                     className="text-[hsl(155,15%,50%)] font-bold hover:underline"
                   >Terms and Conditions</button>. By clicking Create Account, you acknowledge that you have read and agree to our Community Guidelines and Privacy Policy.
                 </label>
