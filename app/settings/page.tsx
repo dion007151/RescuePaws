@@ -170,26 +170,34 @@ export default function SettingsPage() {
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(15,80%,65%)]/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
           
-          <div className="flex items-center gap-6 mb-8">
-            <div className="w-20 h-20 rounded-[2rem] bg-[hsl(15,80%,65%)] flex items-center justify-center shadow-2xl shadow-[hsl(15,80%,65%)]/20 relative z-10 animate-pulse-slow">
-              <PawPrint className="text-white" size={32} />
-            </div>
-            
-            <div className="flex-1 min-w-0 relative z-10">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)] mb-1 block">Active Rescuer Profile</span>
-              <p className="font-black text-[hsl(160,10%,20%)] text-2xl capitalize truncate">{displayName}</p>
-              <div className="flex items-center gap-1.5 text-[hsl(155,15%,50%)] mt-1">
-                <Mail size={12} />
-                <p className="text-xs font-bold truncate opacity-70">{user?.email}</p>
+          <div className="flex items-start justify-between mb-8 relative z-10">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[hsl(15,80%,65%)] to-[hsl(15,80%,75%)] flex items-center justify-center shadow-2xl shadow-[hsl(15,80%,65%)]/30 relative">
+                <PawPrint className="text-white" size={40} />
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-xl border-4 border-white flex items-center justify-center text-white shadow-lg animate-pulse">
+                  <ShieldCheck size={14} />
+                </div>
+              </div>
+              
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/80">Operational & Cloud Synced</span>
+                </div>
+                <p className="font-black text-[hsl(160,10%,20%)] text-3xl capitalize leading-none mb-1">{displayName}</p>
+                <div className="flex items-center gap-2 text-[hsl(155,15%,50%)]">
+                  <Mail size={12} className="opacity-50" />
+                  <p className="text-xs font-bold truncate">{user?.email}</p>
+                </div>
               </div>
             </div>
-            
+
             {!isEditing && (
               <button 
                 onClick={() => setIsEditing(true)}
-                className="px-6 py-2 rounded-xl bg-white border border-[hsl(155,15%,90%)] text-[10px] font-black uppercase tracking-widest text-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,20%)] hover:text-white transition-all shadow-sm"
+                className="p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-white shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 group"
               >
-                Edit Profile
+                <User size={20} className="text-[hsl(160,10%,20%)] group-hover:text-[hsl(15,80%,65%)] transition-colors" />
               </button>
             )}
           </div>
@@ -568,73 +576,78 @@ export default function SettingsPage() {
               {/* Donation Modal (Official GCash Hub) */}
               {openModal === "donate" && (
                 <>
-                  <div className="w-16 h-16 bg-[hsl(15,80%,65%)] rounded-[1.5rem] flex items-center justify-center mb-6 shadow-2xl shadow-[hsl(15,80%,65%)]/20">
+                  <div className="w-16 h-16 bg-[#0055D3] rounded-[1.5rem] flex items-center justify-center mb-6 shadow-2xl shadow-blue-500/20">
                     <Heart className="text-white" size={32} fill="currentColor" />
                   </div>
-                  <h2 className="font-display text-4xl font-black text-[hsl(160,10%,20%)] mb-2 italic">Support Dev<span className="text-[hsl(15,80%,65%)]">.</span></h2>
+                  <h2 className="font-display text-4xl font-black text-[#0055D3] mb-2 italic">Official Support Hub<span className="text-[hsl(15,80%,65%)]">.</span></h2>
                   <p className="text-[hsl(155,15%,50%)] mb-8 font-medium text-lg leading-relaxed">
-                    I am a solo developer dedicated to saving paws. Your support helps me keep the grid active and build future updates.
+                    Safely support the mission. 100% of your contribution fuels the Solo Developer roadmap.
                   </p>
                   
                   <div className="space-y-6">
-                     <div className="bg-white rounded-[2rem] p-8 border border-[hsl(155,15%,92%)] shadow-sm relative overflow-hidden group">
-                        <div className="flex items-center justify-between mb-4">
-                           <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-1">GCash Account Name</p>
-                              <p className="font-black text-[hsl(160,10%,20%)] text-xl italic uppercase">DIONIMAR PUNZALAN FLORES</p>
+                     <div className="bg-[#0055D3] rounded-[2.5rem] p-8 border border-white/20 shadow-2xl relative overflow-hidden group">
+                        {/* Receipt Texture Effect */}
+                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white_0%,transparent_50%)]" />
+                        
+                        <div className="flex items-center justify-between mb-8 relative z-10">
+                           <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">Account Holder</p>
+                              <p className="font-black text-white text-xl italic uppercase tracking-tight">DIONIMAR P. FLORES</p>
                            </div>
-                           <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 font-black italic">GC</div>
+                           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+                              <div className="text-[#0055D3] font-black text-2xl italic leading-none">G<br/><span className="text-[10px] tracking-tighter">CASH</span></div>
+                           </div>
                         </div>
                         
-                        <div>
-                           <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-1">Mobile Number</p>
-                           <div className="flex items-center gap-3">
-                              <p className="font-mono text-3xl font-black text-[hsl(160,10%,20%)]">0942 639 8033</p>
-                              <button 
-                                onClick={() => {
-                                  navigator.clipboard.writeText("09426398033");
-                                  setIsCopied(true);
-                                  setTimeout(() => setIsCopied(false), 2000);
-                                }}
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg ${
-                                  isCopied 
-                                    ? "bg-emerald-500 text-white scale-110" 
-                                    : "bg-[hsl(160,10%,20%)] text-white hover:scale-110 active:scale-95"
-                                }`}
-                                title={isCopied ? "Number Copied!" : "Copy Number"}
-                              >
-                                 {isCopied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-                              </button>
-                           </div>
-                        </div>
+                        <div className="bg-white rounded-[2rem] p-8 shadow-inner relative z-10">
+                           <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-2 text-center">Scan or Copy to Support</p>
+                           
+                           <div className="flex flex-col items-center gap-6">
+                              <div className="w-full aspect-square max-w-[200px] bg-white rounded-[1.5rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex items-center justify-center relative group-hover:border-[#0055D3] transition-all overflow-hidden p-2">
+                                 <img 
+                                   src="/images/gcash_qr.jpg" 
+                                   alt="GCash QR Code"
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     const parent = target.parentElement;
+                                     if (parent) {
+                                       const msg = document.createElement('div');
+                                       msg.className = "text-center p-6 flex flex-col items-center gap-3";
+                                       msg.innerHTML = `
+                                         <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
+                                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                         </div>
+                                         <p class="text-[9px] text-blue-400 font-black uppercase tracking-widest">Awaiting QR Asset</p>
+                                       `;
+                                       parent.appendChild(msg);
+                                     }
+                                   }}
+                                 />
+                              </div>
 
-                        {/* QR Code Placeholder Frame */}
-                        <div className="mt-8 aspect-square w-full max-w-[240px] mx-auto bg-[hsl(155,15%,98%)] rounded-[1.5rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex items-center justify-center relative group-hover:border-[hsl(15,80%,65%)] transition-all overflow-hidden">
-                           <img 
-                             src="/images/gcash_qr.jpg" 
-                             alt="GCash QR Code"
-                             className="w-full h-full object-contain p-2"
-                             onError={(e) => {
-                               // Fallback if image not found
-                               const target = e.target as HTMLImageElement;
-                               target.style.display = 'none';
-                               const parent = target.parentElement;
-                               if (parent) {
-                                 const msg = document.createElement('div');
-                                 msg.className = "text-center p-6 flex flex-col items-center gap-3";
-                                 msg.innerHTML = `
-                                   <div class="w-10 h-10 bg-[hsl(155,15%,90%)] rounded-full flex items-center justify-center text-[hsl(155,15%,50%)]">
-                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                   </div>
-                                   <p class="text-[9px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest leading-relaxed">
-                                     QR Asset Pending<br/>
-                                     <span class="opacity-50 text-[8px]">Upload to public/images/gcash_qr.jpg</span>
-                                   </p>
-                                 `;
-                                 parent.appendChild(msg);
-                               }
-                             }}
-                           />
+                              <div className="flex items-center gap-4 bg-[hsl(45,30%,96%)] px-6 py-4 rounded-2xl border border-[hsl(45,30%,90%)] w-full justify-between">
+                                 <div>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] leading-none mb-1">GCash Number</p>
+                                    <p className="font-mono text-xl font-black text-[hsl(160,10%,20%)] tracking-wider">0942 639 8033</p>
+                                 </div>
+                                 <button 
+                                   onClick={() => {
+                                     navigator.clipboard.writeText("09426398033");
+                                     setIsCopied(true);
+                                     setTimeout(() => setIsCopied(false), 2000);
+                                   }}
+                                   className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-lg ${
+                                     isCopied 
+                                       ? "bg-emerald-500 text-white scale-110" 
+                                       : "bg-[#0055D3] text-white hover:scale-110 active:scale-95 shadow-blue-500/20"
+                                   }`}
+                                 >
+                                    {isCopied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
+                                 </button>
+                              </div>
+                           </div>
                         </div>
                      </div>
 
@@ -643,12 +656,12 @@ export default function SettingsPage() {
                              <CheckCircle2 size={24} />
                          </div>
                          <div>
-                            <p className="font-black text-emerald-800 text-sm italic italic leading-none mb-1">Every tip matters</p>
-                            <p className="text-[10px] text-emerald-600 font-bold">100% of support fuels the RescuePaws roadmap.</p>
+                            <p className="font-black text-emerald-800 text-sm italic italic leading-none mb-1">Secure Transaction</p>
+                            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Verified GCash Professional Account</p>
                          </div>
                      </div>
 
-                     <p className="text-center text-[9px] text-[hsl(155,15%,40%)] font-black uppercase tracking-[0.3em] opacity-40">Thank you for supporting solo developers 🕊️</p>
+                     <p className="text-center text-[9px] text-[hsl(155,15%,40%)] font-black uppercase tracking-[0.3em] opacity-40">Dionimar Punzalan Flores • Solo Developer Roadmap 2026</p>
                   </div>
                 </>
               )}

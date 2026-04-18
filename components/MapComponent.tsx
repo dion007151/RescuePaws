@@ -22,6 +22,7 @@ function MapComponentContent({
   const leafletMapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const userMarkerRef = useRef<any>(null);
+  const accuracyCircleRef = useRef<any>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [showLocatingOverlay, setShowLocatingOverlay] = useState(false);
 
@@ -51,12 +52,34 @@ function MapComponentContent({
       // AUTO-LOCATION: Find the user immediately on load if no focusLocation is provided
       if (!focusLocation) {
         setShowLocatingOverlay(true);
-        map.locate({ setView: true, maxZoom: 16, watch: true, enableHighAccuracy: true });
+        map.locate({ 
+          setView: true, 
+          maxZoom: 16, 
+          watch: true, 
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        });
       }
 
       map.on("locationfound", (e: any) => {
         setIsLocating(false);
         setShowLocatingOverlay(false);
+
+        // Update or create accuracy circle
+        if (accuracyCircleRef.current) {
+          accuracyCircleRef.current.setLatLng(e.latlng);
+          accuracyCircleRef.current.setRadius(e.accuracy);
+        } else {
+          accuracyCircleRef.current = L.circle(e.latlng, {
+            radius: e.accuracy,
+            weight: 1,
+            color: "hsl(15, 80%, 65%)",
+            fillColor: "hsl(15, 80%, 65%)",
+            fillOpacity: 0.15,
+            interactive: false
+          }).addTo(map);
+        }
 
         // Update or create the "You" marker
         const userIcon = L.divIcon({
@@ -119,11 +142,16 @@ function MapComponentContent({
 
         if (userMarkerRef.current) {
           userMarkerRef.current.setLatLng(e.latlng);
+          // Gently follow user but don't force it if they are browsing
+          if (!focusLocation) {
+            map.panTo(e.latlng, { animate: true, duration: 1 });
+          }
         } else {
           userMarkerRef.current = L.marker(e.latlng, { 
             icon: userIcon,
             zIndexOffset: 1000 // Always on top
           }).addTo(map);
+          map.flyTo(e.latlng, 17);
         }
       });
       
@@ -139,6 +167,10 @@ function MapComponentContent({
         if (userMarkerRef.current) {
           userMarkerRef.current.remove();
           userMarkerRef.current = null;
+        }
+        if (accuracyCircleRef.current) {
+          accuracyCircleRef.current.remove();
+          accuracyCircleRef.current = null;
         }
         leafletMapRef.current.remove();
         leafletMapRef.current = null;
@@ -262,7 +294,14 @@ function MapComponentContent({
     if (!leafletMapRef.current) return;
     setIsLocating(true);
     try {
-      leafletMapRef.current.locate({ setView: true, maxZoom: 16, watch: true, enableHighAccuracy: true });
+      leafletMapRef.current.locate({ 
+        setView: true, 
+        maxZoom: 16, 
+        watch: true, 
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
       leafletMapRef.current.on("locationfound", () => setIsLocating(false));
       leafletMapRef.current.on("locationerror", () => setIsLocating(false));
     } catch (err) {
