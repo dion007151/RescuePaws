@@ -51,7 +51,7 @@ function MapComponentContent({
       // AUTO-LOCATION: Find the user immediately on load if no focusLocation is provided
       if (!focusLocation) {
         setShowLocatingOverlay(true);
-        map.locate({ setView: true, maxZoom: 16, watch: false });
+        map.locate({ setView: true, maxZoom: 16, watch: true, enableHighAccuracy: true });
       }
 
       map.on("locationfound", (e: any) => {
@@ -75,43 +75,46 @@ function MapComponentContent({
               }
               .user-pulse-container {
                 position: relative;
-                width: 40px;
-                height: 40px;
+                width: 48px;
+                height: 48px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                filter: drop-shadow(0 0 12px rgba(248, 148, 123, 0.4));
               }
               .user-pulse-ring {
                 position: absolute;
                 width: 100%;
                 height: 100%;
-                background: #3b82f6;
+                background: hsl(15, 80%, 65%);
                 border-radius: 50%;
                 animation: user-ping 2s infinite cubic-bezier(0, 0, 0.2, 1);
               }
               .user-pulse-core {
                 position: relative;
-                width: 24px;
-                height: 24px;
-                background: #3b82f6;
+                width: 32px;
+                height: 32px;
+                background: hsl(15, 80%, 65%);
                 border: 3px solid white;
                 border-radius: 50%;
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+                box-shadow: 0 4px 12px rgba(248, 148, 123, 0.6);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 z-index: 2;
+                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
               }
               .user-pulse-text {
-                font-size: 6px;
-                font-weight: 900;
+                font-size: 8px;
+                font-weight: 950;
                 color: white;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.1em;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.2);
               }
             </style>
           `,
-          iconSize: [40, 40],
-          iconAnchor: [20, 20],
+          iconSize: [48, 48],
+          iconAnchor: [24, 24],
         });
 
         if (userMarkerRef.current) {
@@ -133,6 +136,10 @@ function MapComponentContent({
 
     return () => {
       if (leafletMapRef.current) {
+        if (userMarkerRef.current) {
+          userMarkerRef.current.remove();
+          userMarkerRef.current = null;
+        }
         leafletMapRef.current.remove();
         leafletMapRef.current = null;
       }
@@ -255,7 +262,7 @@ function MapComponentContent({
     if (!leafletMapRef.current) return;
     setIsLocating(true);
     try {
-      leafletMapRef.current.locate({ setView: true, maxZoom: 16 });
+      leafletMapRef.current.locate({ setView: true, maxZoom: 16, watch: true, enableHighAccuracy: true });
       leafletMapRef.current.on("locationfound", () => setIsLocating(false));
       leafletMapRef.current.on("locationerror", () => setIsLocating(false));
     } catch (err) {

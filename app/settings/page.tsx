@@ -45,6 +45,7 @@ export default function SettingsPage() {
   const [fullName, setFullName] = useState(profile?.fullName || "");
   const [phone, setPhone] = useState(profile?.phoneNumber || "");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   async function handleLogout() {
     await signOut(auth);
@@ -592,20 +593,25 @@ export default function SettingsPage() {
                               <button 
                                 onClick={() => {
                                   navigator.clipboard.writeText("09426398033");
-                                  // Visual feedback handled by user clicking
+                                  setIsCopied(true);
+                                  setTimeout(() => setIsCopied(false), 2000);
                                 }}
-                                className="w-10 h-10 rounded-xl bg-[hsl(160,10%,20%)] text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
-                                title="Copy Number"
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg ${
+                                  isCopied 
+                                    ? "bg-emerald-500 text-white scale-110" 
+                                    : "bg-[hsl(160,10%,20%)] text-white hover:scale-110 active:scale-95"
+                                }`}
+                                title={isCopied ? "Number Copied!" : "Copy Number"}
                               >
-                                 <Copy size={16} />
+                                 {isCopied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                               </button>
                            </div>
                         </div>
 
                         {/* QR Code Placeholder Frame */}
-                        <div className="mt-8 aspect-square w-full max-w-[240px] mx-auto bg-[hsl(155,15%,98%)] rounded-[1.5rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex items-center justify-center relative group-hover:border-[hsl(15,80%,65%)] transition-colors overflow-hidden">
+                        <div className="mt-8 aspect-square w-full max-w-[240px] mx-auto bg-[hsl(155,15%,98%)] rounded-[1.5rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex items-center justify-center relative group-hover:border-[hsl(15,80%,65%)] transition-all overflow-hidden">
                            <img 
-                             src="/images/gcash_qr.png" 
+                             src="/images/gcash_qr.jpg" 
                              alt="GCash QR Code"
                              className="w-full h-full object-contain p-2"
                              onError={(e) => {
@@ -615,8 +621,16 @@ export default function SettingsPage() {
                                const parent = target.parentElement;
                                if (parent) {
                                  const msg = document.createElement('div');
-                                 msg.className = "text-center p-4 text-[hsl(155,15%,60%)] font-black uppercase tracking-widest text-[10px]";
-                                 msg.innerText = "Add QR to /public/images/gcash_qr.png";
+                                 msg.className = "text-center p-6 flex flex-col items-center gap-3";
+                                 msg.innerHTML = `
+                                   <div class="w-10 h-10 bg-[hsl(155,15%,90%)] rounded-full flex items-center justify-center text-[hsl(155,15%,50%)]">
+                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                   </div>
+                                   <p class="text-[9px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest leading-relaxed">
+                                     QR Asset Pending<br/>
+                                     <span class="opacity-50 text-[8px]">Upload to public/images/gcash_qr.jpg</span>
+                                   </p>
+                                 `;
                                  parent.appendChild(msg);
                                }
                              }}

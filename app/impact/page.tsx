@@ -226,21 +226,40 @@ export default function ImpactPage() {
 
             <div className="space-y-4">
               {leaderboard.length > 0 ? (
-                leaderboard.map((user, i) => (
-                  <div key={user.id} className="flex items-center gap-6 p-5 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
-                     <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-black text-sm">
-                        #{i + 1}
-                     </div>
-                     <div className="flex-1">
-                        <p className="font-black text-lg capitalize group-hover:text-[hsl(15,80%,65%)] transition-colors">{user.fullName}</p>
-                        <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Active Rescuer</p>
-                     </div>
-                     <div className="text-right">
-                        <p className="text-2xl font-black text-[hsl(15,80%,65%)]">{user.rescueCount}</p>
-                        <p className="text-[9px] text-white/40 font-black uppercase tracking-widest">Rescues</p>
-                     </div>
-                  </div>
-                ))
+                leaderboard.map((item, i) => {
+                  const isCurrentUser = item.id === user?.uid;
+                  return (
+                    <div 
+                      key={item.id} 
+                      className={`flex items-center gap-6 p-5 rounded-[2rem] transition-all group relative ${
+                        isCurrentUser 
+                          ? "bg-white/15 border-2 border-[hsl(15,80%,65%)] shadow-[0_0_20px_rgba(248,148,123,0.3)]" 
+                          : "bg-white/5 border border-white/10 hover:bg-white/10"
+                      }`}
+                    >
+                       {isCurrentUser && (
+                         <div className="absolute -top-3 left-6 px-3 py-1 bg-[hsl(15,80%,65%)] text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg">
+                           You Are Here
+                         </div>
+                       )}
+                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
+                         isCurrentUser ? "bg-[hsl(15,80%,65%)] text-white" : "bg-white/10"
+                       }`}>
+                          #{i + 1}
+                       </div>
+                       <div className="flex-1">
+                          <p className={`font-black text-lg capitalize transition-colors ${
+                            isCurrentUser ? "text-white" : "group-hover:text-[hsl(15,80%,65%)]"
+                          }`}>{item.fullName}</p>
+                          <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Active Rescuer</p>
+                       </div>
+                       <div className="text-right">
+                          <p className={`text-2xl font-black ${isCurrentUser ? "text-white" : "text-[hsl(15,80%,65%)]"}`}>{item.rescueCount}</p>
+                          <p className="text-[9px] text-white/40 font-black uppercase tracking-widest">Rescues</p>
+                       </div>
+                    </div>
+                  );
+                })
               ) : (
                 <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[2rem]">
                    <Users size={48} className="mx-auto text-white/10 mb-4" />
@@ -313,12 +332,12 @@ export default function ImpactPage() {
               <p className="text-white/60 text-sm font-medium mb-8">Every report connects to our verified rescue system in Antique and beyond.</p>
               
               <div className="grid grid-cols-2 gap-4 relative z-10">
-                 <div className="bg-white/10 rounded-[1.5rem] p-5 backdrop-blur-md">
-                    <p className="text-2xl font-black">{globalStats.total}</p>
+                 <div className="bg-white/10 rounded-[1.5rem] p-5 backdrop-blur-md hover:bg-white/15 transition-all">
+                    <p className="text-2xl font-black tabular-nums">{globalStats.total}</p>
                     <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Total Network Reports</p>
                  </div>
-                 <div className="bg-[hsl(15,80%,65%)] rounded-[1.5rem] p-5 shadow-xl shadow-[hsl(15,80%,65%)]/20">
-                    <p className="text-2xl font-black">{globalStats.rescued}</p>
+                 <div className="bg-[hsl(15,80%,65%)] rounded-[1.5rem] p-5 shadow-xl shadow-[hsl(15,80%,65%)]/20 animate-pulse-slow">
+                    <p className="text-2xl font-black tabular-nums">{globalStats.rescued}</p>
                     <p className="text-[9px] font-black text-white/60 uppercase tracking-widest mt-1">Lives Saved Today</p>
                  </div>
               </div>
