@@ -115,8 +115,13 @@ export default function RegisterPage() {
       return;
     }
 
-    // INTERCEPTION: Instead of creating account, show terms for final confirmation
-    setShowTerms(true);
+    if (!acceptedTerms) {
+      setError("Please check the Terms and Conditions to create your account.");
+      return;
+    }
+    
+    // Proceed directly to registration
+    await performRegistration();
   }
 
   return (
@@ -261,12 +266,21 @@ export default function RegisterPage() {
 
             <div className="bg-gradient-to-r from-[hsl(155,15%,98%)] to-white p-4 rounded-2xl border border-[hsl(155,15%,95%)] relative overflow-hidden group/terms">
               <div className="flex items-start gap-3 relative z-10">
-                <label className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed">
-                  By clicking Create Account, you acknowledge that you have read and agree to our <button
+                <div className="pt-0.5">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] focus:ring-[hsl(155,15%,50%)] cursor-pointer"
+                  />
+                </div>
+                <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed">
+                  I agree to the <button
                     type="button"
                     onClick={() => setShowTerms(true)}
                     className="text-[hsl(155,15%,50%)] font-bold hover:underline"
-                  >Terms and Conditions</button> and our Community Guidelines.
+                  >Terms and Conditions</button>. By clicking Create Account, you acknowledge that you have read and agree to our Community Guidelines and Privacy Policy.
                 </label>
               </div>
               <div className="absolute inset-0 bg-[hsl(155,15%,50%)]/0 transition-colors group-hover/terms:bg-[hsl(155,15%,50%)]/[0.02]" />
@@ -311,8 +325,6 @@ export default function RegisterPage() {
       <TermsModal 
         isOpen={showTerms} 
         onClose={() => setShowTerms(false)} 
-        showConfirmButton={true}
-        onConfirm={performRegistration}
       />
     </div>
   );
