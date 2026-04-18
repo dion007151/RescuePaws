@@ -142,21 +142,39 @@ export default function MapPage() {
             }}
           />
 
-          {/* Map Hint Overlay — hidden on very small screens to save space */}
-          <div className="absolute top-4 left-4 z-[400] pointer-events-none hidden xs:block sm:block">
+          {/* Map Hint Overlay — Universal and more prominent */}
+          <div className="absolute top-4 left-4 right-4 sm:right-auto z-[400] pointer-events-none">
             <motion.div 
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="glass px-3 py-2 sm:px-5 sm:py-3 rounded-[1.4rem] shadow-2xl border-white/60 flex items-center gap-2 sm:gap-3"
+              transition={{ delay: 0.5 }}
+              className="glass px-4 py-3 rounded-[1.8rem] shadow-2xl border-white/60 flex items-center gap-3 w-fit mx-auto sm:mx-0"
             >
-              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-[hsl(15,80%,65%)]/10 flex items-center justify-center verified-ring flex-shrink-0">
-                <Info size={15} className="text-[hsl(15,80%,65%)]" />
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 bg-[hsl(15,80%,65%)]/20 rounded-xl animate-ping" />
+                <div className="relative w-10 h-10 rounded-2xl bg-[hsl(15,80%,65%)] flex items-center justify-center shadow-lg shadow-[hsl(15,80%,65%)]/20">
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Info size={18} className="text-white" />
+                  </motion.div>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)]">Rescue Guide</p>
-                <p className="text-[10px] font-bold text-[hsl(160,10%,20%)] whitespace-nowrap">
-                  Tap map to report an animal
-                </p>
+              <div className="flex flex-col pr-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)] mb-0.5">How to help</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-black text-[hsl(160,10%,20%)] tracking-tight">
+                    Tap anywhere on map to report
+                  </p>
+                  <motion.span 
+                    animate={{ opacity: [0, 1, 0], x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="text-lg"
+                  >
+                    📍
+                  </motion.span>
+                </div>
               </div>
             </motion.div>
           </div>
