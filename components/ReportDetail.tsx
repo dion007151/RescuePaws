@@ -1,11 +1,12 @@
 "use client";
 
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Report } from "@/lib/types";
 import { useState } from "react";
+import { useAuth } from "@/lib/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles, Phone, MessageSquare, User } from "lucide-react";
+import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles, Phone, MessageSquare, User, Trash2, AlertTriangle } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface ReportDetailProps {
@@ -18,7 +19,10 @@ const ANIMAL_EMOJI: Record<string, string> = { dog: "🐶", cat: "🐱", other: 
 const CONDITION_LABEL: Record<string, string> = { injured: "Needs Care", hungry: "Hungry", sick: "Unwell" };
 
 export default function ReportDetail({ report, onClose, onUpdate }: ReportDetailProps) {
+  const { user, profile } = useAuth();
   const [rescuing, setRescuing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function markRescued() {
@@ -41,6 +45,21 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
       setError("Unable to update status. Please check your connection.");
     } finally {
       setRescuing(false);
+    }
+  }
+
+  async function deleteReport() {
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteDoc(doc(db, "reports", report.id));
+      onUpdate();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to delete mission data. Permission denied.");
+      setDeleting(false);
+      setShowConfirmDelete(false);
     }
   }
 
@@ -250,9 +269,54 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
             </div>
           )}
           
-          <div className="flex items-center justify-center gap-2 py-2 opacity-30">
-             <ShieldCheck size={14} />
-             <span className="text-[10px] font-black uppercase tracking-widest">RescuePaws Protection</span>
+          <div className="flex flex-col gap-3 py-4">
+             {/* Admin/Owner Actions */}
+             {(profile?.isAdmin || user?.uid === report.userId) && (
+                <div className="border-t border-[hsl(155,15%,90%)] pt-6 mt-2">
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] mb-4 text-center">Operational Controls</p>
+                   
+                   {!showConfirmDelete ? (
+                      <button
+                        onClick={() => setShowConfirmDelete(true)}
+                        className="w-full py-4 rounded-[1.5rem] border-2 border-red-100 text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                      >
+                         <Trash2 size={14} />
+                         Purge Mission Data
+                      </button>
+                   ) : (
+                      <div className="bg-red-50 rounded-[2rem] p-6 border border-red-100 flex flex-col gap-4">
+                         <div className="flex items-start gap-4 text-red-600">
+                            <AlertTriangle size={20} className="mt-1" />
+                            <div>
+                               <p className="font-black text-sm uppercase tracking-tight">Confirm Data Purge?</p>
+                               <p className="text-[10px] font-bold opacity-70">This will permanently remove this mission from the global grid. This action cannot be undone.</p>
+                            </div>
+                         </div>
+                         <div className="flex gap-2">
+                            <button
+                              onClick={deleteReport}
+                              disabled={deleting}
+                              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-500/20 disabled:opacity-50"
+                            >
+                               {deleting ? "Purging..." : "Confirm Delete"}
+                            </button>
+                            <button
+                              onClick={() => setShowConfirmDelete(false)}
+                              disabled={deleting}
+                              className="flex-1 bg-white text-[hsl(155,15%,50%)] font-black py-3 rounded-xl text-[10px] uppercase tracking-widest border border-[hsl(155,15%,90%)] hover:bg-slate-50 transition-all"
+                            >
+                               Abort
+                            </button>
+                         </div>
+                      </div>
+                   )}
+                </div>
+             )}
+
+             <div className="flex items-center justify-center gap-2 pt-2 opacity-30">
+                <ShieldCheck size={14} />
+                <span className="text-[10px] font-black uppercase tracking-widest">RescuePaws Protection</span>
+             </div>
           </div>
         </div>
       </motion.div>

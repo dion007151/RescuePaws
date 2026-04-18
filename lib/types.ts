@@ -3,6 +3,7 @@ export interface UserProfile {
   email: string;
   fullName: string;
   phoneNumber: string;
+  isAdmin?: boolean;
   createdAt: Date;
 }
 
