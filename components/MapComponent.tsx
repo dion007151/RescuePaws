@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
 import { Report } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Crosshair, Plus, Minus, MapPin } from "lucide-react";
+import { Crosshair, Plus, Minus, Navigation2 } from "lucide-react";
 
 interface MapComponentProps {
   reports: Report[];
@@ -9,6 +9,59 @@ interface MapComponentProps {
   onMarkerClick: (report: Report) => void;
   center?: [number, number];
   focusLocation?: [number, number] | null;
+}
+
+// Build the "YOU" marker icon HTML once so it never re-renders
+function buildUserIcon(L: any) {
+  return L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        position: relative;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <!-- Outer pulsing ring -->
+        <div style="
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background: rgba(248,148,123,0.25);
+          animation: youPing 1.8s ease-out infinite;
+        "></div>
+        <!-- Middle ring -->
+        <div style="
+          position: absolute;
+          inset: 6px;
+          border-radius: 50%;
+          background: rgba(248,148,123,0.35);
+          animation: youPing 1.8s ease-out 0.4s infinite;
+        "></div>
+        <!-- Core dot -->
+        <div style="
+          position: relative;
+          z-index: 2;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #f8947b;
+          border: 3px solid white;
+          box-shadow: 0 2px 12px rgba(248,148,123,0.7), 0 0 0 2px rgba(248,148,123,0.3);
+        "></div>
+      </div>
+      <style>
+        @keyframes youPing {
+          0%   { transform: scale(0.6); opacity: 0.9; }
+          100% { transform: scale(2.4); opacity: 0; }
+        }
+      </style>
+    `,
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+  });
 }
 
 function MapComponentContent({
@@ -23,179 +76,158 @@ function MapComponentContent({
   const markersRef = useRef<any[]>([]);
   const userMarkerRef = useRef<any>(null);
   const accuracyCircleRef = useRef<any>(null);
+  const watchIdRef = useRef<number | null>(null);
+  // Track if the user is manually panning so we don't force-follow them
+  const userPannedRef = useRef(false);
+  const autoFollowRef = useRef(true);
+
   const [isLocating, setIsLocating] = useState(false);
   const [showLocatingOverlay, setShowLocatingOverlay] = useState(false);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+  const [gpsFailed, setGpsFailed] = useState(false);
 
+  // ── Core GPS handler: runs on every position update ───────────────
+  const handlePosition = useCallback((pos: GeolocationPosition, L: any, map: any) => {
+    const { latitude, longitude, accuracy } = pos.coords;
+    const latlng = L.latLng(latitude, longitude);
+
+    setIsLocating(false);
+    setShowLocatingOverlay(false);
+    setGpsFailed(false);
+    setGpsAccuracy(Math.round(accuracy));
+
+    // ── Accuracy circle ──────────────────────────────────────────────
+    if (accuracyCircleRef.current) {
+      accuracyCircleRef.current.setLatLng(latlng);
+      accuracyCircleRef.current.setRadius(accuracy);
+    } else {
+      accuracyCircleRef.current = L.circle(latlng, {
+        radius: accuracy,
+        weight: 1,
+        color: "#f8947b",
+        fillColor: "#f8947b",
+        fillOpacity: 0.08,
+        dashArray: "4 4",
+        interactive: false,
+      }).addTo(map);
+    }
+
+    // ── YOU marker ───────────────────────────────────────────────────
+    if (userMarkerRef.current) {
+      // Smoothly slide marker to new position
+      userMarkerRef.current.setLatLng(latlng);
+    } else {
+      const icon = buildUserIcon(L);
+      userMarkerRef.current = L.marker(latlng, {
+        icon,
+        zIndexOffset: 1000,
+        interactive: false,
+      }).addTo(map);
+      // First fix: fly to user, then let them control
+      map.flyTo(latlng, 17, { duration: 1.2, easeLinearity: 0.3 });
+      autoFollowRef.current = true;
+    }
+
+    // Auto-follow: pan to user if they haven't manually scrolled away
+    if (autoFollowRef.current && !focusLocation && !userPannedRef.current) {
+      map.panTo(latlng, { animate: true, duration: 0.5 });
+    }
+  }, [focusLocation]);
+
+  // ── Map initialization ─────────────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
 
     import("leaflet").then((L) => {
       if (!mapRef.current || leafletMapRef.current) return;
-      
       if ((mapRef.current as any)._leaflet_id) return;
 
       const map = L.map(mapRef.current!, {
         zoomControl: false,
         attributionControl: false,
-      }).setView(center, 13);
+        // Smoother panning on mobile
+        inertia: true,
+        inertiaDeceleration: 3000,
+      }).setView(center, 14);
       leafletMapRef.current = map;
 
-      // High-performance tiles
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        maxZoom: 20,
-      }).addTo(map);
+      L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        { maxZoom: 21, tileSize: 256 }
+      ).addTo(map);
 
       map.on("click", (e: { latlng: { lat: number; lng: number } }) => {
         onMapClick(e.latlng.lat, e.latlng.lng);
       });
 
-      // AUTO-LOCATION: Find the user immediately on load if no focusLocation is provided
-      if (!focusLocation) {
+      // Detect manual pan: stop auto-follow until user taps "locate" again
+      map.on("dragstart", () => {
+        userPannedRef.current = true;
+        autoFollowRef.current = false;
+      });
+
+      // ── Start real GPS watch immediately ────────────────────────────
+      if (!focusLocation && "geolocation" in navigator) {
         setShowLocatingOverlay(true);
-        // Safety timeout to dismiss overlay if GPS signal is weak/blocked
-        const timeoutId = setTimeout(() => {
+        setIsLocating(true);
+
+        // Safety timeout: if no fix in 15s, dismiss overlay
+        const safetyTimer = setTimeout(() => {
           setShowLocatingOverlay(false);
           setIsLocating(false);
-        }, 12000);
+          setGpsFailed(true);
+        }, 15000);
 
-        map.locate({ 
-          setView: true, 
-          maxZoom: 16, 
-          watch: true, 
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        });
-
-        map.once("locationfound", () => clearTimeout(timeoutId));
-        map.once("locationerror", () => clearTimeout(timeoutId));
-      }
-
-      map.on("locationfound", (e: any) => {
-        setIsLocating(false);
-        setShowLocatingOverlay(false);
-
-        // Update or create accuracy circle
-        if (accuracyCircleRef.current) {
-          accuracyCircleRef.current.setLatLng(e.latlng);
-          accuracyCircleRef.current.setRadius(e.accuracy);
-        } else {
-          accuracyCircleRef.current = L.circle(e.latlng, {
-            radius: e.accuracy,
-            weight: 1,
-            color: "hsl(15, 80%, 65%)",
-            fillColor: "hsl(15, 80%, 65%)",
-            fillOpacity: 0.15,
-            interactive: false
-          }).addTo(map);
-        }
-
-        // Update or create the "You" marker
-        const userIcon = L.divIcon({
-          className: "user-location-marker",
-          html: `
-            <div class="user-pulse-container">
-              <div class="user-pulse-ring"></div>
-              <div class="user-pulse-core">
-                <span class="user-pulse-text">YOU</span>
-              </div>
-            </div>
-            <style>
-              @keyframes user-ping {
-                0% { transform: scale(0.5); opacity: 0.8; }
-                100% { transform: scale(3); opacity: 0; }
-              }
-              .user-pulse-container {
-                position: relative;
-                width: 48px;
-                height: 48px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                filter: drop-shadow(0 0 12px rgba(248, 148, 123, 0.4));
-              }
-              .user-pulse-ring {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                background: hsl(15, 80%, 65%);
-                border-radius: 50%;
-                animation: user-ping 2s infinite cubic-bezier(0, 0, 0.2, 1);
-              }
-              .user-pulse-core {
-                position: relative;
-                width: 32px;
-                height: 32px;
-                background: hsl(15, 80%, 65%);
-                border: 3px solid white;
-                border-radius: 50%;
-                box-shadow: 0 4px 12px rgba(248, 148, 123, 0.6);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2;
-                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-              }
-              .user-pulse-text {
-                font-size: 8px;
-                font-weight: 950;
-                color: white;
-                letter-spacing: 0.1em;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-              }
-            </style>
-          `,
-          iconSize: [48, 48],
-          iconAnchor: [24, 24],
-        });
-
-        if (userMarkerRef.current) {
-          userMarkerRef.current.setLatLng(e.latlng);
-          // Gently follow user but don't force it if they are browsing
-          if (!focusLocation) {
-            map.panTo(e.latlng, { animate: true, duration: 1 });
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          (pos) => {
+            clearTimeout(safetyTimer);
+            handlePosition(pos, L, map);
+          },
+          (err) => {
+            clearTimeout(safetyTimer);
+            console.warn("GPS error:", err.code, err.message);
+            setIsLocating(false);
+            setShowLocatingOverlay(false);
+            setGpsFailed(true);
+          },
+          {
+            enableHighAccuracy: true,   // Use GPS chip, not just network
+            maximumAge: 0,              // Never use cached positions
+            timeout: 12000,             // Give hardware 12s to respond
           }
-        } else {
-          userMarkerRef.current = L.marker(e.latlng, { 
-            icon: userIcon,
-            zIndexOffset: 1000 // Always on top
-          }).addTo(map);
-          map.flyTo(e.latlng, 17);
-        }
-      });
-      
-      map.on("locationerror", () => {
-        setIsLocating(false);
-        setShowLocatingOverlay(false);
-      });
-
+        );
+      }
     });
 
     return () => {
+      // Stop the GPS watcher when leaving the page
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
       if (leafletMapRef.current) {
-        if (userMarkerRef.current) {
-          userMarkerRef.current.remove();
-          userMarkerRef.current = null;
-        }
-        if (accuracyCircleRef.current) {
-          accuracyCircleRef.current.remove();
-          accuracyCircleRef.current = null;
-        }
+        userMarkerRef.current?.remove();
+        userMarkerRef.current = null;
+        accuracyCircleRef.current?.remove();
+        accuracyCircleRef.current = null;
         leafletMapRef.current.remove();
         leafletMapRef.current = null;
       }
     };
-  }, []);
+  }, []);  // eslint-disable-line
 
+  // ── Focus on a selected report ─────────────────────────────────────
   useEffect(() => {
     if (!leafletMapRef.current || !focusLocation) return;
-    
+    // When viewing a report, pause auto-follow temporarily
+    autoFollowRef.current = false;
     leafletMapRef.current.flyTo(focusLocation, 18, {
-      duration: 1.5,
-      easeLinearity: 0.25
+      duration: 1.2,
+      easeLinearity: 0.25,
     });
   }, [focusLocation]);
 
+  // ── Report markers ─────────────────────────────────────────────────
   useEffect(() => {
     if (!leafletMapRef.current) return;
 
@@ -206,90 +238,58 @@ function MapComponentContent({
       reports.forEach((report, index) => {
         const isRescued = report.status === "rescued";
         const color = isRescued ? "#10b981" : "#f8947b";
-        
-        const photoHtml = report.imageUrl 
-          ? `<img src="${report.imageUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;" />`
-          : `<span style="font-size: 20px;">${report.animalType === "dog" ? "🐶" : report.animalType === "cat" ? "🐱" : "🐾"}</span>`;
+
+        const photoHtml = report.imageUrl
+          ? `<img src="${report.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
+          : `<span style="font-size:18px;">${report.animalType === "dog" ? "🐶" : report.animalType === "cat" ? "🐱" : "🐾"}</span>`;
 
         const icon = L.divIcon({
-          className: "marker-pin-container",
+          className: "",
           html: `
             <style>
-              @keyframes marker-appear {
-                0% { transform: scale(0) translateY(10px); opacity: 0; }
-                100% { transform: scale(1) translateY(0); opacity: 1; }
-              }
-              @keyframes marker-pulse {
-                0% { box-shadow: 0 0 0 0 ${color}44; transform: scale(1); }
-                50% { box-shadow: 0 0 0 12px ${color}00; transform: scale(1.05); }
-                100% { box-shadow: 0 0 0 0 ${color}00; transform: scale(1); }
-              }
-              .marker-pin-wrapper {
-                filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
-              }
-              .marker-badge {
-                position: absolute;
-                top: -4px;
-                right: -4px;
-                width: 20px;
-                height: 20px;
-                background: white;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                border: 1px solid ${color}44;
-                z-index: 10;
-              }
+              @keyframes mpIn { 0%{transform:scale(0) translateY(10px);opacity:0} 100%{transform:scale(1) translateY(0);opacity:1} }
+              @keyframes mpPulse { 0%,100%{box-shadow:0 0 0 0 ${color}55} 50%{box-shadow:0 0 0 10px ${color}00} }
             </style>
-            <div class="marker-pin-wrapper ${!isRescued ? 'active-pulse' : ''}" style="
-              animation: marker-appear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-              animation-delay: ${Math.min(index * 0.03, 0.6)}s;
-              position: relative;
-              width: 56px;
-              height: 56px;
-              ${!isRescued ? `animation: marker-pulse 2s infinite ease-in-out;` : ''}
+            <div style="
+              position:relative;width:52px;height:60px;
+              animation:mpIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) ${Math.min(index*0.03,0.5)}s both;
+              filter:drop-shadow(0 6px 12px rgba(0,0,0,0.18));
             ">
-              <div class="photo-pin" style="
-                width: 56px;
-                height: 56px;
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(4px);
-                border: 4px solid white;
-                box-shadow: inset 0 0 0 2px ${color};
-                border-radius: 20px;
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
+              <div style="
+                width:52px;height:52px;
+                background:white;
+                border:3px solid white;
+                box-shadow:inset 0 0 0 2px ${color};
+                border-radius:16px;overflow:hidden;
+                display:flex;align-items:center;justify-content:center;
+                ${!isRescued ? `animation:mpPulse 2s infinite ease-in-out;` : ''}
               ">
                 ${photoHtml}
               </div>
-              <div class="marker-badge">
-                <span style="font-size: 10px;">${isRescued ? '✅' : '🛡️'}</span>
-              </div>
-              <div class="pin-stem" style="
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 12px;
-                height: 12px;
-                background: ${color};
-                clip-path: polygon(50% 100%, 0 0, 100% 0);
+              <div style="
+                position:absolute;top:-4px;right:-4px;
+                width:18px;height:18px;
+                background:white;border-radius:50%;
+                display:flex;align-items:center;justify-content:center;
+                box-shadow:0 1px 4px rgba(0,0,0,0.12);
+                font-size:9px;
+              ">${isRescued ? '✅' : '🛡️'}</div>
+              <div style="
+                position:absolute;bottom:-6px;left:50%;
+                transform:translateX(-50%);
+                width:10px;height:10px;
+                background:${color};
+                clip-path:polygon(50% 100%,0 0,100% 0);
               "></div>
             </div>
           `,
-          iconSize: [56, 64],
-          iconAnchor: [28, 64],
+          iconSize: [52, 60],
+          iconAnchor: [26, 60],
         });
 
         const marker = L.marker([report.latitude, report.longitude], { icon }).addTo(
           leafletMapRef.current
         );
-
         marker.on("click", (e: any) => {
           onMarkerClick(report);
           L.DomEvent.stopPropagation(e);
@@ -299,99 +299,164 @@ function MapComponentContent({
     });
   }, [reports]);
 
+  // ── "Re-center on me" button ──────────────────────────────────────
   function handleLocate() {
-    if (!leafletMapRef.current) return;
+    if (!("geolocation" in navigator)) return;
     setIsLocating(true);
-    // Safety timeout
-    const timeoutId = setTimeout(() => {
-      setIsLocating(false);
-    }, 10000);
+    setGpsFailed(false);
 
-    try {
-      leafletMapRef.current.locate({ 
-        setView: true, 
-        maxZoom: 16, 
-        watch: true, 
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 0
-      });
-      leafletMapRef.current.once("locationfound", () => {
-        setIsLocating(false);
-        clearTimeout(timeoutId);
-      });
-      leafletMapRef.current.once("locationerror", () => {
-        setIsLocating(false);
-        clearTimeout(timeoutId);
-      });
-    } catch (err) {
-      console.error("GPS Error:", err);
+    // Re-enable auto-follow and reset user-panned flag
+    userPannedRef.current = false;
+    autoFollowRef.current = true;
+
+    // If watch is already running, just re-center
+    if (watchIdRef.current !== null && userMarkerRef.current) {
+      const latlng = userMarkerRef.current.getLatLng();
+      leafletMapRef.current?.flyTo(latlng, 17, { duration: 1 });
       setIsLocating(false);
-      clearTimeout(timeoutId);
+      return;
     }
+
+    // Otherwise start a fresh watch
+    import("leaflet").then((L) => {
+      if (!leafletMapRef.current) return;
+      const map = leafletMapRef.current;
+      const safetyTimer = setTimeout(() => {
+        setIsLocating(false);
+        setGpsFailed(true);
+      }, 12000);
+
+      // Clear any previous watch first
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        (pos) => {
+          clearTimeout(safetyTimer);
+          handlePosition(pos, L, map);
+        },
+        (err) => {
+          clearTimeout(safetyTimer);
+          console.warn("GPS error:", err.message);
+          setIsLocating(false);
+          setGpsFailed(true);
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      );
+    });
   }
 
-  function handleZoomIn() {
-    leafletMapRef.current?.zoomIn();
-  }
+  // Accuracy label
+  const accuracyLabel = gpsAccuracy === null
+    ? null
+    : gpsAccuracy <= 5 ? "Precise"
+    : gpsAccuracy <= 15 ? "Good"
+    : gpsAccuracy <= 40 ? "Fair"
+    : "Weak";
 
-  function handleZoomOut() {
-    leafletMapRef.current?.zoomOut();
-  }
+  const accuracyColor = gpsAccuracy === null
+    ? ""
+    : gpsAccuracy <= 15 ? "text-emerald-600 bg-emerald-50"
+    : gpsAccuracy <= 40 ? "text-orange-500 bg-orange-50"
+    : "text-red-500 bg-red-50";
 
   return (
-    <div className="relative w-full h-full group overflow-hidden rounded-[2.5rem] border-4 border-white shadow-inner">
+    <div className="relative w-full h-full overflow-hidden">
       <div ref={mapRef} className="w-full h-full z-0" />
-      
-      {/* Locating Overlay */}
+
+      {/* ── Locating Overlay ── */}
       <AnimatePresence>
         {showLocatingOverlay && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[500] pointer-events-none"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="absolute inset-0 z-[500] flex items-center justify-center pointer-events-none"
           >
-            <div className="glass px-8 py-4 rounded-[2rem] border-white shadow-2xl flex flex-col items-center gap-3 text-center min-w-[200px]">
-              <div className="w-12 h-12 rounded-2xl bg-[hsl(15,80%,65%)] flex items-center justify-center verified-ring">
-                 <MapPin size={24} className="text-white animate-bounce" />
+            <div className="glass px-7 py-4 rounded-[2rem] border-white shadow-2xl flex flex-col items-center gap-3 text-center">
+              <div className="relative w-12 h-12">
+                <div className="absolute inset-0 rounded-full bg-[hsl(15,80%,65%)]/20 animate-ping" />
+                <div className="relative w-12 h-12 rounded-2xl bg-[hsl(15,80%,65%)] flex items-center justify-center shadow-lg">
+                  <Navigation2 size={22} className="text-white animate-pulse" />
+                </div>
               </div>
               <div>
-                <p className="font-black text-[hsl(160,10%,20%)] italic">Locating You...</p>
-                <p className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest mt-1">Securing GPS Signal</p>
+                <p className="font-black text-[hsl(160,10%,20%)] text-sm">Locking GPS Signal</p>
+                <p className="text-[9px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest mt-0.5">
+                  Stand still for best accuracy
+                </p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {/* GPS Locate Button — positioned separately, always visible */}
+
+      {/* ── GPS Failed Toast ── */}
+      <AnimatePresence>
+        {gpsFailed && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="absolute bottom-24 left-1/2 -translate-x-1/2 z-[500] pointer-events-none"
+          >
+            <div className="bg-red-50 border border-red-100 px-5 py-2.5 rounded-2xl shadow-lg flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-red-600">
+                GPS Unavailable — Enable location access
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Accuracy Badge (top-left, below map overlay) ── */}
+      <AnimatePresence>
+        {gpsAccuracy !== null && !showLocatingOverlay && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            className={`absolute bottom-[5.5rem] left-4 z-[400] px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1.5 ${accuracyColor}`}
+          >
+            <div className={`w-1.5 h-1.5 rounded-full ${gpsAccuracy <= 15 ? "bg-emerald-500 animate-pulse" : gpsAccuracy <= 40 ? "bg-orange-400" : "bg-red-500"}`} />
+            GPS {accuracyLabel} · ±{gpsAccuracy}m
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Locate / Re-center Button ── */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
         onClick={handleLocate}
         disabled={isLocating}
-        aria-label="Find my location"
-        className="absolute left-6 bottom-6 z-[400] w-14 h-14 glass rounded-[1.5rem] shadow-2xl flex items-center justify-center text-[hsl(160,10%,20%)] transition-all hover:text-[hsl(15,80%,65%)] disabled:opacity-50 border border-white/60"
+        aria-label="Center on my location"
+        className="absolute left-4 bottom-4 z-[400] w-13 h-13 glass rounded-[1.3rem] shadow-2xl flex items-center justify-center text-[hsl(160,10%,20%)] transition-all hover:text-[hsl(15,80%,65%)] disabled:opacity-50 border border-white/60"
+        style={{ width: 52, height: 52 }}
       >
-        <Crosshair size={24} className={isLocating ? "animate-spin text-[hsl(15,80%,65%)]" : ""} />
+        <Crosshair
+          size={22}
+          className={isLocating ? "animate-spin text-[hsl(15,80%,65%)]" : autoFollowRef.current ? "text-[hsl(15,80%,65%)]" : ""}
+        />
       </motion.button>
 
-      {/* Zoom Controls — right side, low enough to always be in view */}
-      <div className="absolute right-6 bottom-6 z-[400] flex flex-col glass rounded-[1.5rem] shadow-2xl border border-white/60 overflow-hidden">
+      {/* ── Zoom Controls ── */}
+      <div className="absolute right-4 bottom-4 z-[400] flex flex-col glass rounded-[1.3rem] shadow-2xl border border-white/60 overflow-hidden">
         <button
-          onClick={handleZoomIn}
+          onClick={() => leafletMapRef.current?.zoomIn()}
           aria-label="Zoom In"
-          className="w-14 h-14 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white/40 hover:text-[hsl(15,80%,65%)] transition-all border-b border-white/20"
+          className="w-[52px] h-[52px] flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white/40 hover:text-[hsl(15,80%,65%)] transition-all border-b border-white/20"
         >
-          <Plus size={22} />
+          <Plus size={20} />
         </button>
         <button
-          onClick={handleZoomOut}
+          onClick={() => leafletMapRef.current?.zoomOut()}
           aria-label="Zoom Out"
-          className="w-14 h-14 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white/40 hover:text-[hsl(15,80%,65%)] transition-all"
+          className="w-[52px] h-[52px] flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white/40 hover:text-[hsl(15,80%,65%)] transition-all"
         >
-          <Minus size={22} />
+          <Minus size={20} />
         </button>
       </div>
     </div>
