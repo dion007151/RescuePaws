@@ -5,6 +5,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { LazyMotion, domAnimation } from "framer-motion";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import InAppBrowserWarning from "@/components/InAppBrowserWarning";
 import Script from "next/script";
 
 const nunito = Nunito({
@@ -95,6 +96,8 @@ export default function RootLayout({
             <LayoutWrapper>{children}</LayoutWrapper>
             {/* PWA install prompt — shows after 2s on supported browsers */}
             <PWAInstallPrompt />
+            {/* Smart detection for Facebook / Messenger / FB Lite */}
+            <InAppBrowserWarning />
           </LazyMotion>
         </AuthProvider>
 
