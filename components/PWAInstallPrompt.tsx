@@ -31,17 +31,20 @@ export default function PWAInstallPrompt() {
     const dismissed = localStorage.getItem("pwa-banner-dismissed");
     if (dismissed) return;
 
-    if (ios) {
-      // Show iOS instructions after a short delay
-      setTimeout(() => setShowBanner(true), 3000);
-      return;
-    }
+    // Generic fallback for other browsers (Firefox, Opera, etc.)
+    setTimeout(() => {
+      setShowBanner((prev) => {
+        // Only trigger if not already showing from native event or iOS
+        if (prev) return prev;
+        return true;
+      });
+    }, 6000); // Wait a bit longer for other browsers
 
     // Android/Chrome: listen for the native install prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
-      setTimeout(() => setShowBanner(true), 2000);
+      setShowBanner(true);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -98,35 +101,43 @@ export default function PWAInstallPrompt() {
                 </p>
                 <p className="text-[10px] text-[hsl(155,15%,50%)] font-medium mt-0.5 leading-relaxed">
                   {isIOS
-                    ? 'Tap Share → "Add to Home Screen" to install for free 🐾'
-                    : "Add to your home screen for the full app experience — free! 🐾"}
+                    ? 'Tap Share → "Add to Home Screen" to install 🐾'
+                    : installPrompt 
+                      ? "Add to your home screen for the full experience — free! 🐾"
+                      : "Open your browser menu and tap 'Install' or 'Add to Home Screen' 🐾"}
                 </p>
               </div>
             </div>
 
             <div className="mt-4 flex gap-2">
               {isIOS ? (
-                /* iOS: show instructions since we can't trigger install */
+                /* iOS: show instructions */
                 <div className="flex-1 bg-[hsl(45,40%,97%)] rounded-xl p-3 border border-[hsl(45,30%,90%)]">
                   <p className="text-[10px] font-black text-[hsl(160,10%,20%)] uppercase tracking-widest mb-2 flex items-center gap-1.5">
                     <Smartphone size={10} />
-                    How to install on iPhone
+                    Setup on iPhone
                   </p>
                   <ol className="text-[10px] text-[hsl(155,15%,40%)] font-medium space-y-1 list-decimal list-inside leading-relaxed">
-                    <li>Tap the <span className="font-black">Share</span> button in Safari</li>
-                    <li>Scroll down → tap <span className="font-black">"Add to Home Screen"</span></li>
-                    <li>Tap <span className="font-black">Add</span> — done! 🎉</li>
+                    <li>Tap the <span className="font-black text-[hsl(15,80%,65%)]">Share</span> button in Safari</li>
+                    <li>Tap <span className="font-black text-[hsl(15,80%,65%)]">"Add to Home Screen"</span></li>
                   </ol>
                 </div>
-              ) : (
+              ) : installPrompt ? (
                 /* Android/Chrome: trigger native prompt */
                 <button
                   onClick={handleInstall}
                   className="flex-1 bg-[hsl(15,80%,65%)] hover:bg-[hsl(15,80%,60%)] text-white font-black text-sm py-3 rounded-xl transition-all shadow-lg shadow-[hsl(15,80%,65%)]/25 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <Download size={16} />
-                  Install Free App
+                  Install Now
                 </button>
+              ) : (
+                /* Fallback for Firefox/Opera/etc */
+                <div className="flex-1 bg-orange-50 rounded-xl p-3 border border-orange-100 italic">
+                  <p className="text-[9px] text-orange-600 font-bold leading-tight uppercase tracking-wider">
+                    Quick Setup: Open your browser menu (⋮ or ≡) and look for "Install" or "Add to Home Screen".
+                  </p>
+                </div>
               )}
             </div>
           </div>
