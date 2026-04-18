@@ -10,6 +10,7 @@ import { PawPrint, Mail, Lock, ArrowRight, Loader2, ShieldCheck } from "lucide-r
 
 import { BackgroundDecoration } from "@/components/BackgroundDecoration";
 import { TermsModal } from "@/components/TermsModal";
+import { LoadingDog } from "@/components/LoadingDog";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -177,7 +178,7 @@ export default function LoginPage() {
               className="w-full bg-[hsl(15,80%,65%)] hover:bg-[hsl(15,75%,55%)] text-white font-black py-6 rounded-[2rem] transition-all shadow-[0_30px_60px_-15px_rgba(239,139,97,0.3)] hover:shadow-[0_40px_80px_-20px_rgba(239,139,97,0.4)] hover:-translate-y-1.5 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-4 text-xl group"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={24} />
+                <LoadingDog size="small" />
               ) : (
                 <>
                   Sign In <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />

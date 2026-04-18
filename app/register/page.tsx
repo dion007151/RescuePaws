@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { PawPrint, Mail, Lock, UserPlus, ArrowRight, Loader2, ShieldCheck, User, Phone } from "lucide-react";
 import { TermsModal } from "@/components/TermsModal";
 import { BackgroundDecoration } from "@/components/BackgroundDecoration";
+import { LoadingDog } from "@/components/LoadingDog";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
@@ -304,7 +305,7 @@ export default function RegisterPage() {
               className="w-full bg-[hsl(160,10%,20%)] hover:bg-[hsl(155,15%,40%)] text-white font-black py-6 rounded-[2rem] transition-all shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-4 text-xl group"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={24} />
+                <LoadingDog size="small" />
               ) : (
                 <>
                   Create Account <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
