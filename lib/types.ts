@@ -4,6 +4,8 @@ export interface UserProfile {
   fullName: string;
   phoneNumber: string;
   isAdmin?: boolean;
+  notificationsEnabled?: boolean;
+  rescueCount?: number;
   createdAt: Date;
 }
 

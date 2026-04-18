@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Bell, Lock, Shield, CircleHelp, LogOut,
@@ -8,7 +8,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
 import {
   signOut,
   updatePassword,
@@ -20,7 +21,7 @@ import {
 type Modal = "password" | "delete" | "support" | null;
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const router = useRouter();
   const [openModal, setOpenModal] = useState<Modal>(null);
   const [notifications, setNotifications] = useState(true);
@@ -39,9 +40,33 @@ export default function SettingsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
+  // Profile edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [fullName, setFullName] = useState(profile?.fullName || "");
+  const [phone, setPhone] = useState(profile?.phoneNumber || "");
+  const [profileLoading, setProfileLoading] = useState(false);
+
   async function handleLogout() {
     await signOut(auth);
     router.push("/login");
+  }
+
+  async function handleSaveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user || !db) return;
+    setProfileLoading(true);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        fullName,
+        phoneNumber: phone
+      });
+      setIsEditing(false);
+      router.refresh(); // Refresh to get latest profile
+    } catch (err) {
+      console.error("Profile update error:", err);
+    } finally {
+      setProfileLoading(false);
+    }
   }
 
   async function handleChangePassword(e: React.FormEvent) {
@@ -89,7 +114,36 @@ export default function SettingsPage() {
     }
   }
 
-  const displayName = user?.email?.split("@")[0] ?? "User";
+  async function toggleNotifications() {
+    if (!user || !db) return;
+    const newState = !notifications;
+    
+    // Request permission if enabling
+    if (newState && "Notification" in window && Notification.permission !== "granted") {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return;
+    }
+
+    setNotifications(newState);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        notificationsEnabled: newState
+      });
+    } catch (err) {
+      console.error("Notif update error:", err);
+    }
+  }
+
+  // Sync state from profile on load
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.fullName);
+      setPhone(profile.phoneNumber);
+      setNotifications(!!profile.notificationsEnabled);
+    }
+  }, [profile]);
+
+  const displayName = profile?.fullName || user?.email?.split("@")[0] || "User";
 
   return (
     <div className="min-h-screen bg-[hsl(45,30%,98%)] p-6 lg:p-12 bg-paw-pattern relative overflow-x-hidden">
@@ -111,22 +165,99 @@ export default function SettingsPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="god-card p-8 rounded-[3rem] border border-white shadow-2xl flex items-center gap-6 relative overflow-hidden group cursor-default"
+          className="god-card p-8 rounded-[3rem] border border-white shadow-2xl relative overflow-hidden group cursor-default"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(15,80%,65%)]/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
           
-          <div className="w-20 h-20 rounded-[2rem] bg-[hsl(15,80%,65%)] flex items-center justify-center shadow-2xl shadow-[hsl(15,80%,65%)]/20 relative z-10">
-            <PawPrint className="text-white" size={32} />
-          </div>
-          
-          <div className="flex-1 min-w-0 relative z-10">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)] mb-1 block">Active Rescuer Profile</span>
-            <p className="font-black text-[hsl(160,10%,20%)] text-2xl capitalize truncate">{displayName}</p>
-            <div className="flex items-center gap-1.5 text-[hsl(155,15%,50%)] mt-1">
-              <Mail size={12} />
-              <p className="text-xs font-bold truncate opacity-70">{user?.email}</p>
+          <div className="flex items-center gap-6 mb-8">
+            <div className="w-20 h-20 rounded-[2rem] bg-[hsl(15,80%,65%)] flex items-center justify-center shadow-2xl shadow-[hsl(15,80%,65%)]/20 relative z-10 animate-pulse-slow">
+              <PawPrint className="text-white" size={32} />
             </div>
+            
+            <div className="flex-1 min-w-0 relative z-10">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)] mb-1 block">Active Rescuer Profile</span>
+              <p className="font-black text-[hsl(160,10%,20%)] text-2xl capitalize truncate">{displayName}</p>
+              <div className="flex items-center gap-1.5 text-[hsl(155,15%,50%)] mt-1">
+                <Mail size={12} />
+                <p className="text-xs font-bold truncate opacity-70">{user?.email}</p>
+              </div>
+            </div>
+            
+            {!isEditing && (
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2 rounded-xl bg-white border border-[hsl(155,15%,90%)] text-[10px] font-black uppercase tracking-widest text-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,20%)] hover:text-white transition-all shadow-sm"
+              >
+                Edit Profile
+              </button>
+            )}
           </div>
+
+          <AnimatePresence mode="wait">
+            {isEditing ? (
+              <motion.form 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                onSubmit={handleSaveProfile}
+                className="space-y-4 pt-4 border-t border-[hsl(155,15%,95%)]"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-2">Full Name</p>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      required
+                      className="w-full px-5 py-3 rounded-2xl border-2 border-[hsl(155,15%,95%)] bg-white/50 focus:outline-none focus:border-[hsl(15,80%,65%)] text-sm font-bold transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-2">Contact Number</p>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      required
+                      className="w-full px-5 py-3 rounded-2xl border-2 border-[hsl(155,15%,95%)] bg-white/50 focus:outline-none focus:border-[hsl(15,80%,65%)] text-sm font-bold transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={profileLoading}
+                    className="flex-1 bg-[hsl(160,10%,20%)] text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[hsl(160,10%,20%)]/20 disabled:opacity-50"
+                  >
+                    {profileLoading ? "Syncing..." : "Update Credentials"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="px-6 bg-white border border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-50 hover:text-red-500 transition-all"
+                  >
+                    Abort
+                  </button>
+                </div>
+              </motion.form>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-2 gap-4 pt-4 border-t border-[hsl(155,15%,95%)]"
+              >
+                <div className="p-4 bg-[hsl(155,15%,97%)] rounded-2xl">
+                  <p className="text-[9px] font-black text-[hsl(155,15%,60%)] uppercase tracking-widest mb-1">Rank Status</p>
+                  <p className="font-black text-[hsl(160,10%,20%)] text-sm">Verified Field Agent</p>
+                </div>
+                <div className="p-4 bg-[hsl(155,15%,97%)] rounded-2xl">
+                  <p className="text-[9px] font-black text-[hsl(155,15%,60%)] uppercase tracking-widest mb-1">Missions Won</p>
+                  <p className="font-black text-[hsl(15,80%,65%)] text-sm">{profile?.rescueCount || 0} Successful Extractions</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Settings Sections */}
@@ -149,7 +280,7 @@ export default function SettingsPage() {
                     <p className="text-xs text-[hsl(155,15%,50%)] font-black uppercase tracking-widest">Nearby animal notifications</p>
                   </div>
                   <button
-                    onClick={() => setNotifications(!notifications)}
+                    onClick={toggleNotifications}
                     className={`relative w-16 h-8 rounded-full transition-all duration-500 shadow-inner ${notifications ? "bg-[hsl(15,80%,65%)]" : "bg-[hsl(155,15%,85%)]"}`}
                   >
                     <motion.div

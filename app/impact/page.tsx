@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 import {
   PawPrint, MapPin, CheckCircle2, Camera, Heart,
-  ChevronRight, Star, Zap, Map, ShieldCheck
+  ChevronRight, Star, Zap, Map, ShieldCheck, Trophy, Users
 } from "lucide-react";
+
+interface LeaderboardUser {
+  id: string;
+  fullName: string;
+  rescueCount: number;
+}
+
 
 const steps = [
   {
@@ -74,22 +81,46 @@ export default function ImpactPage() {
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({ total: 0, rescued: 0, pending: 0 });
   const [globalStats, setGlobalStats] = useState({ total: 0, rescued: 0 });
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user || !db) { setLoading(false); return; }
     async function fetchStats() {
       try {
+        // 1. Personal Stats
         const personalQ = query(collection(db, "reports"), where("userId", "==", user!.uid));
         const personalSnap = await getDocs(personalQ);
         let personalRescued = 0;
         personalSnap.forEach(d => { if (d.data().status === "rescued") personalRescued++; });
         setStats({ total: personalSnap.size, rescued: personalRescued, pending: personalSnap.size - personalRescued });
 
+        // 2. Optimized Global Stats (Only for today's context)
         const globalSnap = await getDocs(collection(db, "reports"));
         let globalRescued = 0;
         globalSnap.forEach(d => { if (d.data().status === "rescued") globalRescued++; });
         setGlobalStats({ total: globalSnap.size, rescued: globalRescued });
+
+        // 3. Community Leaderboard
+        const usersQ = query(
+          collection(db, "users"), 
+          orderBy("rescueCount", "desc"), 
+          limit(5)
+        );
+        const usersSnap = await getDocs(usersQ);
+        const topUsers: LeaderboardUser[] = [];
+        usersSnap.forEach(d => {
+          const data = d.data();
+          if (data.rescueCount > 0) {
+            topUsers.push({
+              id: d.id,
+              fullName: data.fullName || "Field Agent",
+              rescueCount: data.rescueCount
+            });
+          }
+        });
+        setLeaderboard(topUsers);
+
       } catch (err) {
         console.error("Stats fetch error:", err);
       } finally {
@@ -173,6 +204,52 @@ export default function ImpactPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* Community Leaderboard */}
+        <motion.section 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="bg-[hsl(160,10%,20%)] rounded-[3rem] p-8 lg:p-12 text-white relative overflow-hidden shadow-2xl"
+        >
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-8">
+               <div>
+                  <h3 className="text-2xl font-black italic">Community Heroes<span className="text-[hsl(15,80%,65%)]">.</span></h3>
+                  <p className="text-white/40 text-xs font-black uppercase tracking-widest mt-1">Global Rescue Leaderboard</p>
+               </div>
+               <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-[hsl(15,80%,65%)] shadow-inner">
+                  <Trophy size={24} />
+               </div>
+            </div>
+
+            <div className="space-y-4">
+              {leaderboard.length > 0 ? (
+                leaderboard.map((user, i) => (
+                  <div key={user.id} className="flex items-center gap-6 p-5 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                     <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-black text-sm">
+                        #{i + 1}
+                     </div>
+                     <div className="flex-1">
+                        <p className="font-black text-lg capitalize group-hover:text-[hsl(15,80%,65%)] transition-colors">{user.fullName}</p>
+                        <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Active Rescuer</p>
+                     </div>
+                     <div className="text-right">
+                        <p className="text-2xl font-black text-[hsl(15,80%,65%)]">{user.rescueCount}</p>
+                        <p className="text-[9px] text-white/40 font-black uppercase tracking-widest">Rescues</p>
+                     </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[2rem]">
+                   <Users size={48} className="mx-auto text-white/10 mb-4" />
+                   <p className="text-white/40 font-black uppercase tracking-widest">The grid is cold... Be the first hero!</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <PawPrint className="absolute -right-20 -top-20 w-64 h-64 text-white/5 -rotate-12" />
+        </motion.section>
 
         {/* Achievement Gallery */}
         <motion.section 

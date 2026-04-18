@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Report } from "@/lib/types";
 import { useState } from "react";
@@ -29,7 +29,15 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
     setRescuing(true);
     setError(null);
     try {
+      // 1. Update report status
       await updateDoc(doc(db, "reports", report.id), { status: "rescued" });
+      
+      // 2. Increment user's rescue count for achievements
+      if (user) {
+        await updateDoc(doc(db, "users", user.uid), {
+          rescueCount: increment(1)
+        });
+      }
       
       confetti({
         particleCount: 150,
