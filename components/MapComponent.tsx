@@ -91,45 +91,71 @@ function MapComponentContent({
                 0% { transform: scale(0) translateY(10px); opacity: 0; }
                 100% { transform: scale(1) translateY(0); opacity: 1; }
               }
+              @keyframes marker-pulse {
+                0% { box-shadow: 0 0 0 0 ${color}44; transform: scale(1); }
+                50% { box-shadow: 0 0 0 12px ${color}00; transform: scale(1.05); }
+                100% { box-shadow: 0 0 0 0 ${color}00; transform: scale(1); }
+              }
               .marker-pin-wrapper {
-                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+                filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+              }
+              .marker-badge {
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                width: 20px;
+                height: 20px;
+                background: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                border: 1px solid ${color}44;
+                z-index: 10;
               }
             </style>
-            <div class="marker-pin-wrapper" style="
-              animation: marker-appear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-              animation-delay: ${Math.min(index * 0.02, 0.5)}s;
+            <div class="marker-pin-wrapper ${!isRescued ? 'active-pulse' : ''}" style="
+              animation: marker-appear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+              animation-delay: ${Math.min(index * 0.03, 0.6)}s;
               position: relative;
-              width: 52px;
-              height: 52px;
+              width: 56px;
+              height: 56px;
+              ${!isRescued ? `animation: marker-pulse 2s infinite ease-in-out;` : ''}
             ">
               <div class="photo-pin" style="
-                width: 52px;
-                height: 52px;
-                background: white;
-                border: 4px solid ${color};
-                border-radius: 50%;
+                width: 56px;
+                height: 56px;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(4px);
+                border: 4px solid white;
+                box-shadow: inset 0 0 0 2px ${color};
+                border-radius: 20px;
                 overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                position: relative;
               ">
                 ${photoHtml}
               </div>
+              <div class="marker-badge">
+                <span style="font-size: 10px;">${isRescued ? '✅' : '🛡️'}</span>
+              </div>
               <div class="pin-stem" style="
                 position: absolute;
-                bottom: -5px;
+                bottom: -8px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 0;
-                height: 0;
-                border-left: 8px solid transparent;
-                border-right: 8px solid transparent;
-                border-top: 10px solid ${color};
+                width: 12px;
+                height: 12px;
+                background: ${color};
+                clip-path: polygon(50% 100%, 0 0, 100% 0);
               "></div>
             </div>
           `,
-          iconSize: [52, 58],
-          iconAnchor: [26, 58],
+          iconSize: [56, 64],
+          iconAnchor: [28, 64],
         });
 
         const marker = L.marker([report.latitude, report.longitude], { icon }).addTo(
@@ -167,7 +193,7 @@ function MapComponentContent({
   }
 
   return (
-    <div className="relative w-full h-full group">
+    <div className="relative w-full h-full group overflow-hidden rounded-[2.5rem] border-4 border-white shadow-inner">
       <div ref={mapRef} className="w-full h-full z-0" />
       
       {/* GPS Locate Button — positioned separately, always visible */}
@@ -177,26 +203,26 @@ function MapComponentContent({
         onClick={handleLocate}
         disabled={isLocating}
         aria-label="Find my location"
-        className="absolute left-4 bottom-4 z-[400] w-14 h-14 bg-white/95 rounded-2xl shadow-2xl flex items-center justify-center text-[hsl(160,10%,20%)] transition-colors hover:text-[hsl(15,80%,65%)] disabled:opacity-50 border border-white/50 backdrop-blur-md"
+        className="absolute left-6 bottom-6 z-[400] w-14 h-14 glass rounded-[1.5rem] shadow-2xl flex items-center justify-center text-[hsl(160,10%,20%)] transition-all hover:text-[hsl(15,80%,65%)] disabled:opacity-50 border border-white/60"
       >
-        <Crosshair size={24} className={isLocating ? "animate-spin" : ""} />
+        <Crosshair size={24} className={isLocating ? "animate-spin text-[hsl(15,80%,65%)]" : ""} />
       </motion.button>
 
       {/* Zoom Controls — right side, low enough to always be in view */}
-      <div className="absolute right-4 bottom-4 z-[400] flex flex-col bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
+      <div className="absolute right-6 bottom-6 z-[400] flex flex-col glass rounded-[1.5rem] shadow-2xl border border-white/60 overflow-hidden">
         <button
           onClick={handleZoomIn}
           aria-label="Zoom In"
-          className="w-12 h-12 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white hover:text-[hsl(15,80%,65%)] transition-colors border-b border-white/50"
+          className="w-14 h-14 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white/40 hover:text-[hsl(15,80%,65%)] transition-all border-b border-white/20"
         >
-          <Plus size={20} />
+          <Plus size={22} />
         </button>
         <button
           onClick={handleZoomOut}
           aria-label="Zoom Out"
-          className="w-12 h-12 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white hover:text-[hsl(15,80%,65%)] transition-colors"
+          className="w-14 h-14 flex items-center justify-center text-[hsl(160,10%,20%)] hover:bg-white/40 hover:text-[hsl(15,80%,65%)] transition-all"
         >
-          <Minus size={20} />
+          <Minus size={22} />
         </button>
       </div>
     </div>

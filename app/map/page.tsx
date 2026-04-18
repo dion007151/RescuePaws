@@ -143,46 +143,55 @@ export default function MapPage() {
           />
 
           {/* Map Overlays (Premium Modern Design) */}
-          <div className="absolute top-4 left-4 z-[400] pointer-events-none">
+          <div className="absolute top-6 left-6 z-[400] pointer-events-none">
             <motion.div 
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="bg-white/80 backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-xl border border-white/50 flex items-center gap-3"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="glass px-5 py-3 rounded-[1.8rem] shadow-2xl border-white/60 flex items-center gap-3"
             >
-              <div className="w-8 h-8 rounded-xl bg-[hsl(155,15%,50%)]/10 flex items-center justify-center">
-                <Info size={16} className="text-[hsl(155,15%,50%)]" />
+              <div className="w-9 h-9 rounded-2xl bg-[hsl(15,80%,65%)]/10 flex items-center justify-center verified-ring">
+                <Info size={18} className="text-[hsl(15,80%,65%)]" />
               </div>
-              <p className="text-xs font-bold text-[hsl(160,10%,20%)]">
-                Click map to report an animal
-              </p>
+              <div className="flex flex-col">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)]">Rescue Guide</p>
+                <p className="text-[11px] font-bold text-[hsl(160,10%,20%)]">
+                  Click map to report an animal
+                </p>
+              </div>
             </motion.div>
           </div>
 
-          <motion.div className="absolute top-4 right-4 z-[400] flex flex-col gap-3">
+          <motion.div className="absolute top-6 right-6 z-[400] flex flex-col gap-4">
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="bg-white/90 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-white/50 text-center min-w-[80px]"
+              className="glass rounded-[2rem] p-4 shadow-2xl border-white/60 text-center min-w-[90px] relative overflow-hidden group"
             >
-              <div className="flex items-center justify-center mb-1">
-                <Loader2 className="animate-pulse text-[hsl(15,80%,65%)]" size={14} />
+              <div className="absolute top-0 right-0 w-8 h-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <PawPrint size={32} />
               </div>
-              <p className="text-xl font-black text-[hsl(160,10%,20%)] leading-none">
+              <div className="flex items-center justify-center mb-1">
+                <Loader2 className="animate-pulse text-[hsl(15,80%,65%)]" size={16} />
+              </div>
+              <p className="text-2xl font-black text-[hsl(160,10%,20%)] leading-none">
                 {reports.filter((r) => r.status === "pending").length}
               </p>
-              <p className="text-[9px] text-[hsl(155,15%,50%)] font-black uppercase tracking-wider mt-1">Pending</p>
+              <p className="text-[9px] text-[hsl(15,80%,65%)] font-black uppercase tracking-widest mt-1.5 opacity-80">Pending</p>
             </motion.div>
             
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="bg-white/90 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-white/50 text-center min-w-[80px]"
+              className="glass rounded-[2rem] p-4 shadow-2xl border-white/60 text-center min-w-[90px] relative overflow-hidden group"
             >
-              <div className="flex items-center justify-center mb-1 text-emerald-500">
-                <Heart size={14} fill="currentColor" />
+              <div className="absolute top-0 right-0 w-8 h-8 text-emerald-500 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Heart size={32} />
               </div>
-              <p className="text-xl font-black text-[hsl(160,10%,20%)] leading-none">
+              <div className="flex items-center justify-center mb-1 text-emerald-500">
+                <ShieldCheck size={16} />
+              </div>
+              <p className="text-2xl font-black text-[hsl(160,10%,20%)] leading-none">
                 {reports.filter((r) => r.status === "rescued").length}
               </p>
-              <p className="text-[9px] text-[hsl(155,15%,50%)] font-black uppercase tracking-wider mt-1 text-emerald-600">Rescued</p>
+              <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1.5 opacity-80">Rescued</p>
             </motion.div>
           </motion.div>
         </motion.div>
@@ -257,11 +266,14 @@ export default function MapPage() {
                     onClick={() => setSelectedReport(report)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full text-left p-4 bg-white hover:bg-[hsl(45,30%,98%)] rounded-3xl border border-[hsl(155,15%,95%)] transition-all shadow-sm hover:shadow-md group relative overflow-hidden"
+                    className="w-full text-left p-5 bg-white/80 hover:bg-white rounded-[2rem] border border-white shadow-sm hover:shadow-xl group relative transition-all active:scale-[0.98]"
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-[hsl(155,15%,95%)] rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                    <div className="flex items-start gap-5">
+                      <div className="w-16 h-16 bg-[hsl(155,15%,95%)] rounded-[1.5rem] flex items-center justify-center text-4xl group-hover:scale-110 transition-all shadow-inner relative overflow-hidden">
                         {ANIMAL_EMOJI[report.animalType]}
+                        <div className="absolute bottom-0 right-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <ShieldCheck size={12} className="text-[hsl(15,80%,65%)]" />
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
