@@ -33,7 +33,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="min-h-[100dvh]">
-      <Navigation />
+      {showNav && <Navigation />}
       {/* 
         Mobile: top nav is 88px (top-6=24px gap + h-16=64px), bottom nav is ~104px (bottom-6=24px + h-20=80px).
         We add pt-[88px] (top bar) + pb-[104px] (bottom bar) on mobile only.
