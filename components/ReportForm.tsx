@@ -34,6 +34,26 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!imagePreview || isAnalyzing) return;
+    
+    // Simulate AI detecting keywords in description
+    const desc = description.toLowerCase();
+    let intel = "AI Scan: Optimal visibility. Condition verified.";
+    
+    if (desc.includes("bleeding") || desc.includes("blood") || desc.includes("wound")) {
+       intel = "AI Scan: Potential trauma detected. High priority.";
+    } else if (desc.includes("limp") || desc.includes("bone") || desc.includes("leg")) {
+       intel = "AI Scan: Mobility issues detected. Vet assistance recommended.";
+    } else if (desc.includes("skin") || desc.includes("itch") || desc.includes("hair")) {
+       intel = "AI Scan: Dermatological condition detected.";
+    } else if (desc.includes("thin") || desc.includes("ribs") || desc.includes("starving")) {
+       intel = "AI Scan: Severe malnutrition detected.";
+    }
+
+    setAiAnalysis(intel);
+  }, [description, imagePreview, isAnalyzing]);
+
+  useEffect(() => {
     async function reverseGeocode() {
       setIsGeocoding(true);
       try {

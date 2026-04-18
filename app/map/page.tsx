@@ -107,6 +107,9 @@ export default function MapPage() {
     if (filter === "my" && r.userId !== user?.uid) return false;
     if (filter !== "all" && filter !== "my" && r.status !== filter) return false;
     
+    // 2. Category Filter (Stray vs Lost)
+    if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+
     // 3. Condition Filter
     if (conditionFilter !== "all" && r.condition !== conditionFilter) return false;
 
