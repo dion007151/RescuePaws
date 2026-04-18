@@ -382,13 +382,25 @@ export default function SettingsPage() {
              <div className="mt-8">
                 <button
                   onClick={() => setOpenModal("donate")}
-                  className="w-full bg-white rounded-[2.5rem] p-8 border-2 border-dashed border-[hsl(15,80%,65%)] shadow-xl group hover:bg-[hsl(15,80%,65%)]/5 transition-all text-center"
+                  className="w-full bg-gradient-to-br from-[#0055D3] to-[#0040A0] rounded-[2rem] p-6 shadow-2xl shadow-blue-500/20 group hover:shadow-blue-500/30 hover:-translate-y-1 transition-all text-left relative overflow-hidden border border-white/10"
                 >
-                   <div className="w-16 h-16 bg-[hsl(15,80%,65%)]/10 rounded-2xl flex items-center justify-center text-[hsl(15,80%,65%)] mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Heart size={32} fill="currentColor" />
+                   {/* GCash shimmer */}
+                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1),transparent_60%)]" />
+
+                   <div className="flex items-center gap-4 relative z-10">
+                      {/* GCash Icon */}
+                      <div className="w-14 h-14 bg-white rounded-2xl flex flex-col items-center justify-center shadow-xl flex-shrink-0">
+                        <span className="text-[#0055D3] font-black text-xl leading-none">G</span>
+                        <span className="text-[#0055D3] font-black text-[8px] tracking-widest leading-none">CASH</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="font-black text-white text-base leading-none">Support Solo Developer</p>
+                          <span className="text-[8px] font-black bg-white/20 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">GCash</span>
+                        </div>
+                        <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">Any amount means the world 💙</p>
+                      </div>
                    </div>
-                   <h3 className="font-black text-[hsl(160,10%,20%)] text-xl italic mb-1">Support Solo Developer<span className="text-[hsl(15,80%,65%)]">.</span></h3>
-                   <p className="text-[hsl(155,15%,50%)] text-xs font-black uppercase tracking-widest">Help me improve RescuePaws future updates</p>
                 </button>
              </div>
           </motion.div>
@@ -573,95 +585,125 @@ export default function SettingsPage() {
                   </form>
                 </>
               )}
-              {/* Donation Modal (Official GCash Hub) */}
+              {/* Donation Modal — Official GCash Support Hub */}
               {openModal === "donate" && (
                 <>
-                  <div className="w-16 h-16 bg-[#0055D3] rounded-[1.5rem] flex items-center justify-center mb-6 shadow-2xl shadow-blue-500/20">
-                    <Heart className="text-white" size={32} fill="currentColor" />
+                  {/* GCash Logo Header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 bg-[#0055D3] rounded-[1.5rem] flex flex-col items-center justify-center shadow-2xl shadow-blue-600/30 flex-shrink-0">
+                      <span className="text-white font-black text-2xl leading-none">G</span>
+                      <span className="text-white/80 font-black text-[9px] tracking-[0.15em] leading-none">CASH</span>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#0055D3]">Official GCash</p>
+                      <h2 className="font-display text-2xl sm:text-3xl font-black text-[hsl(160,10%,20%)] leading-tight">
+                        Support the Dev<span className="text-[#0055D3]">.</span>
+                      </h2>
+                    </div>
                   </div>
-                  <h2 className="font-display text-4xl font-black text-[#0055D3] mb-2 italic">Official Support Hub<span className="text-[hsl(15,80%,65%)]">.</span></h2>
-                  <p className="text-[hsl(155,15%,50%)] mb-8 font-medium text-lg leading-relaxed">
-                    Safely support the mission. 100% of your contribution fuels the Solo Developer roadmap.
-                  </p>
-                  
-                  <div className="space-y-6">
-                     <div className="bg-[#0055D3] rounded-[2.5rem] p-8 border border-white/20 shadow-2xl relative overflow-hidden group">
-                        {/* Receipt Texture Effect */}
-                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white_0%,transparent_50%)]" />
-                        
-                        <div className="flex items-center justify-between mb-8 relative z-10">
-                           <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">Account Holder</p>
-                              <p className="font-black text-white text-xl italic uppercase tracking-tight">DIONIMAR P. FLORES</p>
-                           </div>
-                           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl">
-                              <div className="text-[#0055D3] font-black text-2xl italic leading-none">G<br/><span className="text-[10px] tracking-tighter">CASH</span></div>
-                           </div>
+
+                  {/* Personal Developer Message */}
+                  <div className="bg-gradient-to-br from-[hsl(45,40%,97%)] to-[hsl(45,30%,95%)] rounded-[1.5rem] p-5 border border-[hsl(45,30%,90%)] mb-6 relative overflow-hidden">
+                    <div className="absolute top-3 left-4 text-5xl opacity-10 font-black leading-none select-none">❝</div>
+                    <p className="text-[hsl(160,10%,25%)] text-sm font-medium leading-relaxed relative z-10">
+                      Hi! I'm <span className="font-black text-[hsl(160,10%,20%)]">Dionimar Flores</span>, a solo developer 
+                      who built <span className="font-black text-[hsl(15,80%,65%)] italic">RescuePaws</span> completely alone — 
+                      from the design, to the code, to every little detail you see. This app is 
+                      <span className="font-black"> 100% free</span> and always will be.
+                    </p>
+                    <p className="text-[hsl(160,10%,25%)] text-sm font-medium leading-relaxed mt-3 relative z-10">
+                      If this app helped even one animal, please consider supporting me. 
+                      <span className="font-black text-[hsl(15,80%,65%)]"> Any amount will do</span> — it's how I keep building for free. 
+                      Thank you so much for using my app! Stay tuned for future updates 🐾💙
+                    </p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mt-3 opacity-70">— Dionimar Punzalan Flores</p>
+                  </div>
+
+                  {/* GCash Card */}
+                  <div className="space-y-4">
+                    <div className="bg-[#0055D3] rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-600/25 relative">
+                      {/* Card shine */}
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+
+                      {/* Card Top */}
+                      <div className="px-6 pt-5 pb-4 flex items-center justify-between relative z-10">
+                        <div>
+                          <p className="text-white/50 text-[9px] font-black uppercase tracking-widest mb-1">Account Holder</p>
+                          <p className="font-black text-white text-base uppercase tracking-tight">DIONIMAR P. FLORES</p>
+                          <p className="font-mono text-white/70 text-sm tracking-widest mt-0.5">0942 639 8033</p>
                         </div>
-                        
-                        <div className="bg-white rounded-[2rem] p-8 shadow-inner relative z-10">
-                           <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-2 text-center">Scan or Copy to Support</p>
-                           
-                           <div className="flex flex-col items-center gap-6">
-                              <div className="w-full aspect-square max-w-[200px] bg-white rounded-[1.5rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex items-center justify-center relative group-hover:border-[#0055D3] transition-all overflow-hidden p-2">
-                                 <img 
-                                   src="/images/gcash_qr.jpg" 
-                                   alt="GCash QR Code"
-                                   className="w-full h-full object-contain"
-                                   onError={(e) => {
-                                     const target = e.target as HTMLImageElement;
-                                     target.style.display = 'none';
-                                     const parent = target.parentElement;
-                                     if (parent) {
-                                       const msg = document.createElement('div');
-                                       msg.className = "text-center p-6 flex flex-col items-center gap-3";
-                                       msg.innerHTML = `
-                                         <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
-                                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                         </div>
-                                         <p class="text-[9px] text-blue-400 font-black uppercase tracking-widest">Awaiting QR Asset</p>
-                                       `;
-                                       parent.appendChild(msg);
-                                     }
-                                   }}
-                                 />
-                              </div>
-
-                              <div className="flex items-center gap-4 bg-[hsl(45,30%,96%)] px-6 py-4 rounded-2xl border border-[hsl(45,30%,90%)] w-full justify-between">
-                                 <div>
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] leading-none mb-1">GCash Number</p>
-                                    <p className="font-mono text-xl font-black text-[hsl(160,10%,20%)] tracking-wider">0942 639 8033</p>
-                                 </div>
-                                 <button 
-                                   onClick={() => {
-                                     navigator.clipboard.writeText("09426398033");
-                                     setIsCopied(true);
-                                     setTimeout(() => setIsCopied(false), 2000);
-                                   }}
-                                   className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-lg ${
-                                     isCopied 
-                                       ? "bg-emerald-500 text-white scale-110" 
-                                       : "bg-[#0055D3] text-white hover:scale-110 active:scale-95 shadow-blue-500/20"
-                                   }`}
-                                 >
-                                    {isCopied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
-                                 </button>
-                              </div>
-                           </div>
+                        {/* Real-styled GCash logo pill */}
+                        <div className="bg-white rounded-xl px-3 py-2 shadow-lg flex flex-col items-center">
+                          <span className="text-[#0055D3] font-black text-xl leading-none">G</span>
+                          <span className="text-[#0055D3] font-black text-[7px] tracking-widest leading-none">CASH</span>
                         </div>
-                     </div>
+                      </div>
 
-                     <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100 flex items-center gap-5">
-                         <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600">
-                             <CheckCircle2 size={24} />
-                         </div>
-                         <div>
-                            <p className="font-black text-emerald-800 text-sm italic italic leading-none mb-1">Secure Transaction</p>
-                            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Verified GCash Professional Account</p>
-                         </div>
-                     </div>
+                      {/* QR Code area */}
+                      <div className="bg-white mx-4 mb-4 rounded-[1.5rem] p-4 relative z-10">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-center text-[hsl(155,15%,50%)] mb-3">📱 Scan QR to Send</p>
+                        <div className="flex justify-center">
+                          <div className="w-[180px] h-[180px] rounded-2xl overflow-hidden border-2 border-dashed border-[#0055D3]/20 flex items-center justify-center bg-white">
+                            <img
+                              src="/images/gcash_qr.jpg"
+                              alt="GCash QR Code of Dionimar Flores"
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                const t = e.target as HTMLImageElement;
+                                t.style.display = 'none';
+                                const p = t.parentElement;
+                                if (p) {
+                                  p.innerHTML = `<div style="text-align:center;padding:24px">
+                                    <div style="font-size:40px;margin-bottom:8px">📷</div>
+                                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#0055D3">Scan in GCash App</p>
+                                  </div>`;
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
 
-                     <p className="text-center text-[9px] text-[hsl(155,15%,40%)] font-black uppercase tracking-[0.3em] opacity-40">Dionimar Punzalan Flores • Solo Developer Roadmap 2026</p>
+                        {/* Copy number */}
+                        <div className="flex items-center justify-between mt-4 bg-[hsl(45,30%,97%)] rounded-2xl px-4 py-3 border border-[hsl(45,30%,90%)]">
+                          <div>
+                            <p className="text-[8px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-0.5">GCash Number</p>
+                            <p className="font-mono text-lg font-black text-[hsl(160,10%,20%)] tracking-wider">0942 639 8033</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText("09426398033");
+                              setIsCopied(true);
+                              setTimeout(() => setIsCopied(false), 2500);
+                            }}
+                            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all shadow-md ${
+                              isCopied
+                                ? "bg-emerald-500 text-white scale-110"
+                                : "bg-[#0055D3] text-white hover:scale-110 active:scale-95"
+                            }`}
+                          >
+                            {isCopied ? <CheckCircle2 size={18} /> : <Copy size={18} />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Thank you note */}
+                    <div className="flex items-start gap-3 bg-blue-50 rounded-2xl p-4 border border-blue-100">
+                      <div className="w-9 h-9 bg-[#0055D3] rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Heart size={16} className="text-white" fill="currentColor" />
+                      </div>
+                      <div>
+                        <p className="font-black text-[#0055D3] text-sm leading-none mb-1">Thank you for your support!</p>
+                        <p className="text-[10px] text-blue-500 font-medium leading-relaxed">
+                          Every peso helps me stay motivated to build free tools for our community. 
+                          Stay tuned for future updates 🐾
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="text-center text-[9px] text-[hsl(155,15%,45%)] font-black uppercase tracking-[0.25em] opacity-50">
+                      Dionimar Punzalan Flores · Solo Developer · RescuePaws 2026
+                    </p>
                   </div>
                 </>
               )}
