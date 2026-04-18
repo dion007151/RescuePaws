@@ -6,7 +6,7 @@ import { Report } from "@/lib/types";
 import { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles, Phone, MessageSquare, User, Trash2, AlertTriangle } from "lucide-react";
+import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles, Phone, MessageSquare, User, Trash2, AlertTriangle, Camera } from "lucide-react";
 import confetti from "canvas-confetti";
 import ChatPortal from "./ChatPortal";
 
@@ -29,6 +29,22 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
   const [broadcasting, setBroadcasting] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [rescuing, setRescuing] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function deleteReport() {
+    setDeleting(true);
+    try {
+      await deleteDoc(doc(db, "reports", report.id));
+      onUpdate();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to delete report.");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function markRescued() {
     setRescuing(true);

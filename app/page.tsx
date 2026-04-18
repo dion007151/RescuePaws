@@ -1,16 +1,15 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, MapPin, ShieldCheck, ArrowRight, PawPrint } from "lucide-react";
+import { Heart, MapPin, ShieldCheck, ArrowRight, PawPrint, Dog, Target, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { LoadingDog } from "@/components/LoadingDog";
+import { BackgroundDecoration } from "@/components/BackgroundDecoration";
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
-  const router = useRouter();
 
   if (loading) {
     return (
