@@ -22,6 +22,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://rescuepaws.vercel.app"),
   title: "RescuePaws – Stray Animal Rescue Map",
   description:
     "Report and rescue stray animals in your community. Real-time map, GPS tracking, and rescue missions — all free.",
@@ -41,6 +42,20 @@ export const metadata: Metadata = {
     title: "RescuePaws – Stray Animal Rescue Map",
     description: "Help rescue stray animals in your community using real-time GPS mapping.",
     siteName: "RescuePaws",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "RescuePaws Social Preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RescuePaws – Stray Animal Rescue Map",
+    description: "Help rescue stray animals in your community using real-time GPS mapping.",
+    images: ["/og-image.png"],
   },
 };
 
