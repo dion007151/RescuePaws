@@ -6,6 +6,7 @@ import { collection, query, where, getDocs, orderBy, limit } from "firebase/fire
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   PawPrint, MapPin, CheckCircle2, Camera, Heart,
   ChevronRight, Star, Zap, Map, ShieldCheck, Trophy, Users
@@ -355,7 +356,12 @@ export default function ImpactPage() {
               <ShieldCheck size={12} className="text-[hsl(15,80%,65%)]" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
            </div>
-           <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,60%)]">V.2.5.0 Production Premium Hub</p>
+           <div className="flex items-center gap-4">
+              <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,60%)]">V.2.5.0 Production Premium Hub</p>
+              <Link href="/settings" className="text-[9px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)] hover:underline decoration-2 underline-offset-4">
+                 [ Support Development ]
+              </Link>
+           </div>
         </footer>
 
       </div>

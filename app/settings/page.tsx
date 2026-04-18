@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Bell, Lock, Shield, CircleHelp, LogOut,
-  ChevronRight, X, Eye, EyeOff, CheckCircle2, AlertTriangle, PawPrint, Mail, ShieldCheck
+  ChevronRight, X, Eye, EyeOff, CheckCircle2, AlertTriangle, PawPrint, Mail, ShieldCheck, Copy, Heart
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
@@ -18,7 +18,7 @@ import {
   reauthenticateWithCredential,
 } from "firebase/auth";
 
-type Modal = "password" | "delete" | "support" | null;
+type Modal = "password" | "delete" | "support" | "donate" | null;
 
 export default function SettingsPage() {
   const { user, profile } = useAuth();
@@ -369,6 +369,19 @@ export default function SettingsPage() {
                   <div className="px-3 py-1 bg-red-50 rounded-lg text-[9px] font-black text-red-500 uppercase tracking-widest">Safety Key Required</div>
                 </button>
              </div>
+
+             <div className="mt-8">
+                <button
+                  onClick={() => setOpenModal("donate")}
+                  className="w-full bg-white rounded-[2.5rem] p-8 border-2 border-dashed border-[hsl(15,80%,65%)] shadow-xl group hover:bg-[hsl(15,80%,65%)]/5 transition-all text-center"
+                >
+                   <div className="w-16 h-16 bg-[hsl(15,80%,65%)]/10 rounded-2xl flex items-center justify-center text-[hsl(15,80%,65%)] mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Heart size={32} fill="currentColor" />
+                   </div>
+                   <h3 className="font-black text-[hsl(160,10%,20%)] text-xl italic mb-1">Support Solo Developer<span className="text-[hsl(15,80%,65%)]">.</span></h3>
+                   <p className="text-[hsl(155,15%,50%)] text-xs font-black uppercase tracking-widest">Help me improve RescuePaws future updates</p>
+                </button>
+             </div>
           </motion.div>
         </div>
 
@@ -549,6 +562,80 @@ export default function SettingsPage() {
                     
                     <p className="text-center text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-[0.3em] opacity-50">This action cannot be undone</p>
                   </form>
+                </>
+              )}
+              {/* Donation Modal (Official GCash Hub) */}
+              {openModal === "donate" && (
+                <>
+                  <div className="w-16 h-16 bg-[hsl(15,80%,65%)] rounded-[1.5rem] flex items-center justify-center mb-6 shadow-2xl shadow-[hsl(15,80%,65%)]/20">
+                    <Heart className="text-white" size={32} fill="currentColor" />
+                  </div>
+                  <h2 className="font-display text-4xl font-black text-[hsl(160,10%,20%)] mb-2 italic">Support Dev<span className="text-[hsl(15,80%,65%)]">.</span></h2>
+                  <p className="text-[hsl(155,15%,50%)] mb-8 font-medium text-lg leading-relaxed">
+                    I am a solo developer dedicated to saving paws. Your support helps me keep the grid active and build future updates.
+                  </p>
+                  
+                  <div className="space-y-6">
+                     <div className="bg-white rounded-[2rem] p-8 border border-[hsl(155,15%,92%)] shadow-sm relative overflow-hidden group">
+                        <div className="flex items-center justify-between mb-4">
+                           <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-1">GCash Account Name</p>
+                              <p className="font-black text-[hsl(160,10%,20%)] text-xl italic uppercase">DIONIMAR PUNZALAN FLORES</p>
+                           </div>
+                           <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 font-black italic">GC</div>
+                        </div>
+                        
+                        <div>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] mb-1">Mobile Number</p>
+                           <div className="flex items-center gap-3">
+                              <p className="font-mono text-3xl font-black text-[hsl(160,10%,20%)]">0942 639 8033</p>
+                              <button 
+                                onClick={() => {
+                                  navigator.clipboard.writeText("09426398033");
+                                  // Visual feedback handled by user clicking
+                                }}
+                                className="w-10 h-10 rounded-xl bg-[hsl(160,10%,20%)] text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                                title="Copy Number"
+                              >
+                                 <Copy size={16} />
+                              </button>
+                           </div>
+                        </div>
+
+                        {/* QR Code Placeholder Frame */}
+                        <div className="mt-8 aspect-square w-full max-w-[240px] mx-auto bg-[hsl(155,15%,98%)] rounded-[1.5rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex items-center justify-center relative group-hover:border-[hsl(15,80%,65%)] transition-colors overflow-hidden">
+                           <img 
+                             src="/images/gcash_qr.png" 
+                             alt="GCash QR Code"
+                             className="w-full h-full object-contain p-2"
+                             onError={(e) => {
+                               // Fallback if image not found
+                               const target = e.target as HTMLImageElement;
+                               target.style.display = 'none';
+                               const parent = target.parentElement;
+                               if (parent) {
+                                 const msg = document.createElement('div');
+                                 msg.className = "text-center p-4 text-[hsl(155,15%,60%)] font-black uppercase tracking-widest text-[10px]";
+                                 msg.innerText = "Add QR to /public/images/gcash_qr.png";
+                                 parent.appendChild(msg);
+                               }
+                             }}
+                           />
+                        </div>
+                     </div>
+
+                     <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100 flex items-center gap-5">
+                         <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600">
+                             <CheckCircle2 size={24} />
+                         </div>
+                         <div>
+                            <p className="font-black text-emerald-800 text-sm italic italic leading-none mb-1">Every tip matters</p>
+                            <p className="text-[10px] text-emerald-600 font-bold">100% of support fuels the RescuePaws roadmap.</p>
+                         </div>
+                     </div>
+
+                     <p className="text-center text-[9px] text-[hsl(155,15%,40%)] font-black uppercase tracking-[0.3em] opacity-40">Thank you for supporting solo developers 🕊️</p>
+                  </div>
                 </>
               )}
             </motion.div>
