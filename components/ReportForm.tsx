@@ -17,6 +17,8 @@ interface ReportFormProps {
   onSuccess: () => void;
 }
 
+export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormProps) {
+  const { user, profile } = useAuth();
   const [animalType, setAnimalType] = useState<"dog" | "cat" | "other">("dog");
   const [condition, setCondition] = useState<"injured" | "hungry" | "sick">("hungry");
   const [category, setCategory] = useState<"stray" | "lost">("stray");

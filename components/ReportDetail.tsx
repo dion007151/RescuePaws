@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, updateDoc, deleteDoc, increment } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, increment, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Report } from "@/lib/types";
 import { useState } from "react";
@@ -20,10 +20,12 @@ const CONDITION_LABEL: Record<string, string> = { injured: "Needs Care", hungry:
 
 export default function ReportDetail({ report, onClose, onUpdate }: ReportDetailProps) {
   const { user, profile } = useAuth();
-  const [rescuing, setRescuing] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showStoryForm, setShowStoryForm] = useState(false);
+  const [storyText, setStoryText] = useState("");
+  const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [broadcasting, setBroadcasting] = useState(false);
 
   async function markRescued() {
     setRescuing(true);
@@ -55,20 +57,53 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
     }
   }
 
-  async function deleteReport() {
-    setDeleting(true);
-    setError(null);
+  async function broadcastStory() {
+    if (!storyText.trim()) {
+      setError("Please describe the mission success story.");
+      return;
+    }
+    setBroadcasting(true);
     try {
-      await deleteDoc(doc(db, "reports", report.id));
+      await addDoc(collection(db, "success_stories"), {
+        reportId: report.id,
+        beforeImageUrl: report.imageUrl || "",
+        afterImageUrl: afterImageUrl || report.imageUrl || "", // Fallback if no after photo
+        story: storyText.trim(),
+        rescuerName: profile?.fullName || "Anonymous Hero",
+        rescuerId: user?.uid,
+        createdAt: serverTimestamp()
+      });
+      setShowStoryForm(false);
       onUpdate();
-      onClose();
+      
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.5 },
+        colors: ["#10b981", "#34d399", "#ffffff"]
+      });
     } catch (err) {
       console.error(err);
-      setError("Failed to delete mission data. Permission denied.");
-      setDeleting(false);
-      setShowConfirmDelete(false);
+      setError("Failed to broadcast the story. Network error.");
+    } finally {
+      setBroadcasting(false);
     }
   }
+
+  // Handle mock image upload for "After" photo
+  const handleAfterImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      // Mock upload for demonstration
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAfterImageUrl(reader.result as string);
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const createdAt =
     report.createdAt instanceof Date
@@ -279,12 +314,85 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
           )}
 
           {report.status === "rescued" && (
-            <div className="w-full bg-emerald-50 border-2 border-emerald-100 text-emerald-600 font-black py-6 rounded-[2rem] text-center flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-1">
-                 <Heart className="fill-emerald-500" size={24} />
+            <div className="space-y-4">
+              <div className="w-full bg-emerald-50 border-2 border-emerald-100 text-emerald-600 font-black py-6 rounded-[2rem] text-center flex flex-col items-center gap-2">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-1">
+                   <Heart className="fill-emerald-500" size={24} />
+                </div>
+                <p className="text-xl">Heroic Mission Complete!</p>
+                <p className="text-xs uppercase tracking-widest opacity-70">This paw is now safe ❤️</p>
               </div>
-              <p className="text-xl">Heroic Mission Complete!</p>
-              <p className="text-xs uppercase tracking-widest opacity-70">This paw is now safe ❤️</p>
+
+              {!showStoryForm ? (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowStoryForm(true)}
+                  className="w-full bg-[hsl(160,10%,20%)] text-white font-black py-5 rounded-[2rem] shadow-xl flex items-center justify-center gap-3"
+                >
+                   <Sparkles size={20} className="text-[hsl(15,80%,65%)]" />
+                   Share Success Story
+                </motion.button>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-[2.5rem] border border-[hsl(155,15%,95%)] p-6 shadow-xl space-y-6"
+                >
+                   <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(160,10%,20%)]">Broadcast Mission Story</p>
+                      <button onClick={() => setShowStoryForm(false)} className="text-[hsl(155,15%,50%)] hover:text-red-500 transition-colors">
+                         <X size={16} />
+                      </button>
+                   </div>
+
+                   <div className="space-y-4">
+                      {/* After Photo Upload */}
+                      <div className="relative group">
+                         <div className={`h-40 rounded-[2rem] border-2 border-dashed border-[hsl(155,15%,90%)] flex flex-col items-center justify-center overflow-hidden relative ${afterImageUrl ? 'border-emerald-200' : 'hover:border-[hsl(160,10%,20%)]'}`}>
+                            {afterImageUrl ? (
+                               <img src={afterImageUrl} className="w-full h-full object-cover" alt="After" />
+                            ) : (
+                               <>
+                                  <Camera className="text-[hsl(155,15%,80%)] mb-2" size={32} />
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(155,15%,60%)]">Upload "After" Photo</p>
+                               </>
+                            )}
+                            <input 
+                               type="file" 
+                               accept="image/*" 
+                               onChange={handleAfterImageChange}
+                               className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                         </div>
+                         {isUploading && (
+                           <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center rounded-[2rem]">
+                              <Loader2 className="animate-spin text-emerald-500" />
+                           </div>
+                         )}
+                      </div>
+
+                      <div className="space-y-2">
+                         <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-2 leading-none mb-1">Mission Highlights</p>
+                         <textarea 
+                           value={storyText}
+                           onChange={(e) => setStoryText(e.target.value)}
+                           placeholder="Describe the rescue and how the animal is doing now..."
+                           className="w-full bg-[hsl(155,15%,97%)] rounded-3xl p-5 text-sm font-medium border-0 focus:ring-2 focus:ring-[hsl(160,10%,20%)]/10 min-h-[120px] resize-none"
+                         />
+                      </div>
+
+                      <button
+                        onClick={broadcastStory}
+                        disabled={broadcasting || isUploading}
+                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 disabled:opacity-50 transition-all"
+                      >
+                         {broadcasting ? <Loader2 className="animate-spin" /> : <Sparkles size={16} />}
+                         {broadcasting ? "Broadcasting..." : "Share with Community"}
+                      </button>
+                   </div>
+                </motion.div>
+              )}
             </div>
           )}
           

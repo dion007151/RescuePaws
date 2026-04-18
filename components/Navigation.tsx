@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Map, Heart, PawPrint, LogOut, Settings, ShieldCheck } from "lucide-react";
+import { Map, Heart, PawPrint, LogOut, Settings, ShieldCheck, Users, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -18,6 +18,8 @@ export default function Navigation() {
 
   const navItems = [
     { icon: Map, label: "Map", href: "/map" },
+    { icon: Users, label: "Squads", href: "/teams" },
+    { icon: Sparkles, label: "Paw Log", href: "/paw-log" },
     { icon: Heart, label: "Impact", href: "/impact" },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];

@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { LoadingDog } from "./LoadingDog";
+import { useAuth } from "@/lib/AuthContext";
+import Navigation from "./Navigation";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

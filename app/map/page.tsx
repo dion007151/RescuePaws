@@ -49,6 +49,12 @@ const CONDITION_COLOR: Record<string, string> = {
   sick: "bg-purple-50 text-purple-600 border-purple-100",
 };
 
+const TEAM_EMOJI: Record<string, string> = {
+  guardians: "🛡️",
+  patrol: "🗺️",
+  frontline: "⚡",
+};
+
 import { Skeleton, ReportCardSkeleton } from "@/components/Skeleton";
 
 export default function MapPage() {
@@ -336,6 +342,11 @@ export default function MapPage() {
                           <span className="font-black text-[hsl(160,10%,20%)] capitalize text-sm">
                             {report.animalType}
                           </span>
+                          {report.teamId && (
+                            <span className="text-xs" title="Squad Member">
+                               {TEAM_EMOJI[report.teamId]}
+                            </span>
+                          )}
                           <span
                             className={`text-[9px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider border ${CONDITION_COLOR[report.condition]}`}
                           >

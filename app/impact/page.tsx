@@ -9,14 +9,21 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   PawPrint, MapPin, CheckCircle2, Camera, Heart,
-  ChevronRight, Star, Zap, Map, ShieldCheck, Trophy, Users, Sparkles, Target
+  ChevronRight, Star, Zap, Map, ShieldCheck, Trophy, Users, Sparkles, Target, Shield
 } from "lucide-react";
 
 interface LeaderboardUser {
   id: string;
   fullName: string;
   rescueCount: number;
+  teamId?: string;
 }
+
+const TEAM_INFO: Record<string, { name: string; icon: any; color: string; emoji: string }> = {
+  guardians: { name: "Antique Guardians", icon: Shield, color: "text-blue-500", emoji: "🛡️" },
+  patrol: { name: "Pioneer Patrol", icon: Map, color: "text-orange-500", emoji: "🗺️" },
+  frontline: { name: "Frontline Medical", icon: Zap, color: "text-purple-500", emoji: "⚡" },
+};
 
 
 const steps = [
@@ -66,7 +73,7 @@ interface Stats {
 }
 
 export default function ImpactPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({ total: 0, rescued: 0, pending: 0 });
   const [globalStats, setGlobalStats] = useState({ total: 0, rescued: 0 });
@@ -101,7 +108,8 @@ export default function ImpactPage() {
             topUsers.push({
               id: d.id,
               fullName: data.fullName || "Field Agent",
-              rescueCount: data.rescueCount
+              rescueCount: data.rescueCount,
+              teamId: data.teamId
             });
           }
         });
@@ -140,6 +148,13 @@ export default function ImpactPage() {
                <div className="px-4 py-1.5 rounded-full bg-white border border-[hsl(155,15%,90%)] text-[hsl(160,10%,20%)] text-[10px] font-black uppercase tracking-[0.25em]">
                   Mission ID: #{user?.uid.slice(0,6)}
                </div>
+               
+               {profile?.teamId && TEAM_INFO[profile.teamId] && (
+                 <Link href="/teams" className="px-4 py-1.5 rounded-full bg-white border-2 border-[hsl(160,10%,20%)]/10 text-[hsl(160,10%,20%)] text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-[hsl(160,10%,20%)] hover:text-white transition-all group">
+                    <span className="group-hover:scale-125 transition-transform">{TEAM_INFO[profile.teamId].emoji}</span>
+                    {TEAM_INFO[profile.teamId].name}
+                 </Link>
+               )}
             </div>
             <h1 className="font-display text-7xl lg:text-9xl font-black text-[hsl(160,10%,20%)] leading-[0.8] tracking-tighter">
               The Mission <br/>
@@ -288,7 +303,14 @@ export default function ImpactPage() {
                               {i + 1}
                            </div>
                            <div className="flex-1">
-                              <p className={`font-black text-xl lg:text-2xl capitalize`}>{item.fullName}</p>
+                              <div className="flex items-center gap-2">
+                                <p className={`font-black text-xl lg:text-2xl capitalize`}>{item.fullName}</p>
+                                {item.teamId && TEAM_INFO[item.teamId] && (
+                                  <span title={TEAM_INFO[item.teamId].name} className="text-lg grayscale-0 brightness-100 group-hover:scale-125 transition-transform">
+                                    {TEAM_INFO[item.teamId].emoji}
+                                  </span>
+                                )}
+                              </div>
                               <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrentUser ? "text-white/40" : "text-[hsl(155,15%,50%)]"}`}>
                                 {isCurrentUser ? "You Are Dominating" : "Active Field Agent"}
                               </p>
