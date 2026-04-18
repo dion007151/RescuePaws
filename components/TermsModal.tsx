@@ -1,14 +1,16 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Shield, ScrollText, CheckCircle2 } from "lucide-react";
+import { X, Shield, ScrollText, CheckCircle2, ArrowRight } from "lucide-react";
 
 interface TermsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onConfirm?: () => void;
+  showConfirmButton?: boolean;
 }
 
-export function TermsModal({ isOpen, onClose }: TermsModalProps) {
+export function TermsModal({ isOpen, onClose, onConfirm, showConfirmButton }: TermsModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -97,10 +99,16 @@ export function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Footer */}
             <div className="p-8 border-t border-gray-100 bg-white">
               <button
-                onClick={onClose}
-                className="w-full bg-[hsl(155,15%,50%)] hover:bg-[hsl(155,15%,40%)] text-white font-black py-4 rounded-2xl shadow-xl shadow-[hsl(155,15%,50%)]/20 transition-all active:scale-[0.98]"
+                onClick={showConfirmButton && onConfirm ? onConfirm : onClose}
+                className="w-full bg-[hsl(155,15%,50%)] hover:bg-[hsl(155,15%,40%)] text-white font-black py-4 rounded-2xl shadow-xl shadow-[hsl(155,15%,50%)]/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
               >
-                Got it, let's go!
+                {showConfirmButton ? (
+                  <>
+                    Agree & Join RescuePaws <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                ) : (
+                  "Got it, let's go!"
+                )}
               </button>
             </div>
           </motion.div>

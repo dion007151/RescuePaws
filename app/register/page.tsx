@@ -42,44 +42,11 @@ export default function RegisterPage() {
     "bg-green-500",
   ];
 
-  async function handleRegister(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    
-    // Detailed validations
-    if (!fullName.trim()) {
-      setError("Please enter your full name.");
-      return;
-    }
-
-    // Phone number validation (at least 10 digits)
-    const phoneDigits = phoneNumber.replace(/\D/g, "");
-    if (phoneDigits.length < 10) {
-      setError("Please enter a valid phone number (at least 10 digits).");
-      return;
-    }
-
-    if (!email.includes("@") || !email.includes(".")) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (password !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-    
-    if (strength < 2) {
-      setError("Please choose a stronger password.");
-      return;
-    }
-
-    if (!acceptedTerms) {
-      setError("You must accept the Terms of Agreement to continue.");
-      return;
-    }
-    
+  const performRegistration = async () => {
+    setShowTerms(false);
     setLoading(true);
+    setError("");
+
     try {
       if (!auth || !db) {
         throw new Error("Firebase is not fully configured. Please check your settings.");
@@ -113,6 +80,42 @@ export default function RegisterPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  async function handleRegister(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    
+    // Detailed validations
+    if (!fullName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    // Phone number validation (at least 10 digits)
+    const phoneDigits = phoneNumber.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      setError("Please enter a valid phone number (at least 10 digits).");
+      return;
+    }
+
+    if (!email.includes("@") || !email.includes(".")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    
+    if (strength < 2) {
+      setError("Please choose a stronger password.");
+      return;
+    }
+
+    // INTERCEPTION: Instead of creating account, show terms for final confirmation
+    setShowTerms(true);
   }
 
   return (
@@ -257,21 +260,12 @@ export default function RegisterPage() {
 
             <div className="bg-gradient-to-r from-[hsl(155,15%,98%)] to-white p-4 rounded-2xl border border-[hsl(155,15%,95%)] relative overflow-hidden group/terms">
               <div className="flex items-start gap-3 relative z-10">
-                <div className="pt-0.5">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    checked={acceptedTerms}
-                    onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] focus:ring-[hsl(155,15%,50%)] cursor-pointer"
-                  />
-                </div>
-                <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed">
-                  I agree to the <button
+                <label className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed">
+                  By clicking Create Account, you acknowledge that you have read and agree to our <button
                     type="button"
                     onClick={() => setShowTerms(true)}
                     className="text-[hsl(155,15%,50%)] font-bold hover:underline"
-                  >Terms and Conditions</button>. By creating an account, you acknowledge that you have read and agree to our community guidelines and privacy policy.
+                  >Terms and Conditions</button> and our Community Guidelines.
                 </label>
               </div>
               <div className="absolute inset-0 bg-[hsl(155,15%,50%)]/0 transition-colors group-hover/terms:bg-[hsl(155,15%,50%)]/[0.02]" />
@@ -313,7 +307,12 @@ export default function RegisterPage() {
         </div>
       </motion.div>
 
-      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+      <TermsModal 
+        isOpen={showTerms} 
+        onClose={() => setShowTerms(false)} 
+        showConfirmButton={true}
+        onConfirm={performRegistration}
+      />
     </div>
   );
 }
