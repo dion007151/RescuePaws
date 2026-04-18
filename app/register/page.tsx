@@ -255,25 +255,26 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 px-1 py-2">
-              <input
-                type="checkbox"
-                id="terms"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] focus:ring-[hsl(155,15%,50%)] cursor-pointer"
-              />
-              <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-tight">
-                I agree to the{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowTerms(true)}
-                  className="text-[hsl(155,15%,50%)] font-bold hover:underline"
-                >
-                  Terms and Conditions
-                </button>{" "}
-                and acknowledge the Privacy Policy.
-              </label>
+            <div className="bg-gradient-to-r from-[hsl(155,15%,98%)] to-white p-4 rounded-2xl border border-[hsl(155,15%,95%)] relative overflow-hidden group/terms">
+              <div className="flex items-start gap-3 relative z-10">
+                <div className="pt-0.5">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] focus:ring-[hsl(155,15%,50%)] cursor-pointer"
+                  />
+                </div>
+                <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-relaxed">
+                  I agree to the <button
+                    type="button"
+                    onClick={() => setShowTerms(true)}
+                    className="text-[hsl(155,15%,50%)] font-bold hover:underline"
+                  >Terms and Conditions</button>. By creating an account, you acknowledge that you have read and agree to our community guidelines and privacy policy.
+                </label>
+              </div>
+              <div className="absolute inset-0 bg-[hsl(155,15%,50%)]/0 transition-colors group-hover/terms:bg-[hsl(155,15%,50%)]/[0.02]" />
             </div>
 
             <button
