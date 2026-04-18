@@ -148,46 +148,46 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-[hsl(45,30%,98%)] p-6 lg:p-12 bg-paw-pattern relative overflow-x-hidden">
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="max-w-2xl mx-auto space-y-10">
 
         {/* Header */}
-        <header className="flex flex-col gap-2">
+        <header className="flex flex-col gap-1">
            <div className="flex items-center gap-2 mb-1">
-              <Shield size={16} className="text-[hsl(15,80%,65%)]" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[hsl(15,80%,65%)]">Security & Preferences</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(15,80%,65%)]" />
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[hsl(15,80%,65%)]">Operational Hub</span>
            </div>
-           <h1 className="font-display text-5xl lg:text-6xl font-black text-[hsl(160,10%,20%)] premium-glow leading-none">
+           <h1 className="font-display text-4xl lg:text-5xl font-black text-[hsl(160,10%,20%)] premium-glow leading-tight">
              Settings<span className="text-[hsl(15,80%,65%)]">.</span>
            </h1>
-           <p className="text-[hsl(155,15%,50%)] font-medium text-lg max-w-sm">Personalize your rescue experience and secure your account.</p>
+           <p className="text-[hsl(155,15%,50%)] font-medium text-sm max-w-sm">Manage your profile, security, and mission preferences.</p>
         </header>
 
         {/* Profile Card (Premium God-Card) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="god-card p-8 rounded-[3rem] border border-white shadow-2xl relative overflow-hidden group cursor-default"
+          className="god-card p-6 rounded-[2.5rem] border border-white shadow-xl relative overflow-hidden group cursor-default"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(15,80%,65%)]/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
           
           <div className="flex items-start justify-between mb-8 relative z-10">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[hsl(15,80%,65%)] to-[hsl(15,80%,75%)] flex items-center justify-center shadow-2xl shadow-[hsl(15,80%,65%)]/30 relative">
-                <PawPrint className="text-white" size={40} />
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-xl border-4 border-white flex items-center justify-center text-white shadow-lg animate-pulse">
-                  <ShieldCheck size={14} />
+            <div className="flex items-center gap-5">
+              <div className="w-20 h-20 rounded-[1.75rem] bg-gradient-to-br from-[hsl(15,80%,65%)] to-[hsl(15,80%,75%)] flex items-center justify-center shadow-xl shadow-[hsl(15,80%,65%)]/20 relative">
+                <PawPrint className="text-white" size={32} />
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg border-[3px] border-white flex items-center justify-center text-white shadow-md">
+                  <ShieldCheck size={10} />
                 </div>
               </div>
               
               <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/80">Operational & Cloud Synced</span>
+                <div className="flex items-center gap-1.5 mb-1">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                   <span className="text-[8px] font-black uppercase tracking-[0.2em] text-emerald-600/70">Secured & Active</span>
                 </div>
-                <p className="font-black text-[hsl(160,10%,20%)] text-3xl capitalize leading-none mb-1">{displayName}</p>
+                <p className="font-black text-[hsl(160,10%,20%)] text-2xl capitalize leading-tight mb-1">{displayName}</p>
                 <div className="flex items-center gap-2 text-[hsl(155,15%,50%)]">
-                  <Mail size={12} className="opacity-50" />
-                  <p className="text-xs font-bold truncate">{user?.email}</p>
+                  <Mail size={10} className="opacity-40" />
+                  <p className="text-[11px] font-bold truncate opacity-80">{user?.email}</p>
                 </div>
               </div>
             </div>
@@ -195,9 +195,9 @@ export default function SettingsPage() {
             {!isEditing && (
               <button 
                 onClick={() => setIsEditing(true)}
-                className="p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-white shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 group"
+                className="w-10 h-10 rounded-xl bg-white/60 backdrop-blur-md border border-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95 group flex items-center justify-center"
               >
-                <User size={20} className="text-[hsl(160,10%,20%)] group-hover:text-[hsl(15,80%,65%)] transition-colors" />
+                <User size={18} className="text-[hsl(160,10%,20%)] group-hover:text-[hsl(15,80%,65%)] transition-colors" />
               </button>
             )}
           </div>
@@ -256,13 +256,13 @@ export default function SettingsPage() {
                 animate={{ opacity: 1 }}
                 className="grid grid-cols-2 gap-4 pt-4 border-t border-[hsl(155,15%,95%)]"
               >
-                <div className="p-4 bg-[hsl(155,15%,97%)] rounded-2xl">
+                <div className="p-4 bg-[hsl(155,15%,97%)] rounded-2xl border border-[hsl(155,15%,93%)] font-display">
                   <p className="text-[9px] font-black text-[hsl(155,15%,60%)] uppercase tracking-widest mb-1">Rank Status</p>
-                  <p className="font-black text-[hsl(160,10%,20%)] text-sm">Verified Field Agent</p>
+                  <p className="font-black text-[hsl(160,10%,20%)] text-xs">Verified Field Agent</p>
                 </div>
-                <div className="p-4 bg-[hsl(155,15%,97%)] rounded-2xl">
+                <div className="p-4 bg-[hsl(155,15%,97%)] rounded-2xl border border-[hsl(155,15%,93%)]">
                   <p className="text-[9px] font-black text-[hsl(155,15%,60%)] uppercase tracking-widest mb-1">Missions Won</p>
-                  <p className="font-black text-[hsl(15,80%,65%)] text-sm">{profile?.rescueCount || 0} Successful Extractions</p>
+                  <p className="font-black text-[hsl(15,80%,65%)] text-xs">{profile?.rescueCount || 0} Extraction(s)</p>
                 </div>
               </motion.div>
             )}
@@ -278,24 +278,24 @@ export default function SettingsPage() {
             transition={{ delay: 0.1 }}
             className="space-y-4"
           >
-             <p className="text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-2">App Experience</p>
-             <div className="glass rounded-[2.5rem] p-2 border-white/60 shadow-xl overflow-hidden">
-                <div className="flex items-center gap-5 p-5 bg-white/40 rounded-[2rem]">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[hsl(160,10%,20%)] shadow-sm">
-                    <Bell size={22} />
+             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[hsl(155,15%,50%)] ml-4">App Experience</p>
+             <div className="glass rounded-[2rem] p-1.5 border-white shadow-lg overflow-hidden">
+                <div className="flex items-center gap-4 p-4 bg-white/40 rounded-[1.5rem]">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[hsl(160,10%,20%)] shadow-sm">
+                    <Bell size={18} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-black text-[hsl(160,10%,20%)] italic text-lg">Rescue Alerts</p>
-                    <p className="text-xs text-[hsl(155,15%,50%)] font-black uppercase tracking-widest">Nearby animal notifications</p>
+                    <p className="font-black text-[hsl(160,10%,20%)] italic text-base">Rescue Alerts</p>
+                    <p className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest">Nearby animal notifications</p>
                   </div>
                   <button
                     onClick={toggleNotifications}
-                    className={`relative w-16 h-8 rounded-full transition-all duration-500 shadow-inner ${notifications ? "bg-[hsl(15,80%,65%)]" : "bg-[hsl(155,15%,85%)]"}`}
+                    className={`relative w-12 h-6 rounded-full transition-all duration-500 shadow-inner ${notifications ? "bg-[hsl(15,80%,65%)]" : "bg-[hsl(155,15%,85%)]"}`}
                   >
                     <motion.div
-                      animate={{ x: notifications ? 36 : 4 }}
+                      animate={{ x: notifications ? 26 : 2 }}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
+                      className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md"
                     />
                   </button>
                 </div>
@@ -309,34 +309,34 @@ export default function SettingsPage() {
             transition={{ delay: 0.2 }}
             className="space-y-4"
           >
-             <p className="text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-2">Privacy & Access</p>
-             <div className="glass rounded-[2.5rem] border-white/60 shadow-xl overflow-hidden divide-y divide-white/20">
+             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[hsl(155,15%,50%)] ml-4">Privacy & Access</p>
+             <div className="glass rounded-[2rem] border-white shadow-lg overflow-hidden divide-y divide-white/20">
                 <button
                   onClick={() => { setOpenModal("password"); setPwError(""); setPwSuccess(false); }}
-                  className="w-full flex items-center gap-5 p-6 hover:bg-white/40 transition-all text-left group"
+                  className="w-full flex items-center gap-4 p-5 hover:bg-white/40 transition-all text-left group"
                 >
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(160,10%,20%)] group-hover:text-white transition-all shadow-sm">
-                    <Lock size={22} />
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(160,10%,20%)] group-hover:text-white transition-all shadow-sm">
+                    <Lock size={18} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-black text-[hsl(160,10%,20%)] text-lg italic">Reset Security Key</p>
-                    <p className="text-xs text-[hsl(155,15%,50%)] font-black uppercase tracking-widest">Update your dashboard password</p>
+                    <p className="font-black text-[hsl(160,10%,20%)] text-base italic leading-none">Reset Security Key</p>
+                    <p className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest mt-1">Update your dashboard credentials</p>
                   </div>
-                  <ChevronRight size={20} className="text-[hsl(155,15%,80%)] group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight size={16} className="text-[hsl(155,15%,80%)] group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 <button
                   onClick={() => setOpenModal("support")}
-                  className="w-full flex items-center gap-5 p-6 hover:bg-white/40 transition-all text-left group"
+                  className="w-full flex items-center gap-4 p-5 hover:bg-white/40 transition-all text-left group"
                 >
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(160,10%,20%)] group-hover:text-white transition-all shadow-sm">
-                    <Shield size={22} />
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(160,10%,20%)] group-hover:text-white transition-all shadow-sm">
+                    <Shield size={18} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-black text-[hsl(160,10%,20%)] text-lg italic">System Permissions</p>
-                    <p className="text-xs text-[hsl(155,15%,50%)] font-black uppercase tracking-widest">Manage camera and GPS storage</p>
+                    <p className="font-black text-[hsl(160,10%,20%)] text-base italic leading-none">System Permissions</p>
+                    <p className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest mt-1">Manage camera and GPS settings</p>
                   </div>
-                  <ChevronRight size={20} className="text-[hsl(155,15%,80%)] group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight size={16} className="text-[hsl(155,15%,80%)] group-hover:translate-x-1 transition-transform" />
                 </button>
              </div>
           </motion.div>
@@ -348,34 +348,34 @@ export default function SettingsPage() {
             transition={{ delay: 0.3 }}
             className="space-y-4"
           >
-             <p className="text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-2">Mission Control</p>
-             <div className="glass rounded-[2.5rem] border-white/60 shadow-xl overflow-hidden divide-y divide-white/20">
+             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[hsl(155,15%,50%)] ml-4">Mission Control</p>
+             <div className="glass rounded-[2rem] border-white shadow-lg overflow-hidden divide-y divide-white/20">
                 <button
                   onClick={() => setOpenModal("support")}
-                  className="w-full flex items-center gap-5 p-6 hover:bg-white/40 transition-all text-left group"
+                  className="w-full flex items-center gap-4 p-5 hover:bg-white/40 transition-all text-left group"
                 >
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(15,80%,65%)] group-hover:text-white transition-all shadow-sm">
-                    <CircleHelp size={22} />
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[hsl(155,15%,50%)] group-hover:bg-[hsl(15,80%,65%)] group-hover:text-white transition-all shadow-sm">
+                    <CircleHelp size={18} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-black text-[hsl(160,10%,20%)] text-lg italic">Rescue Field Guide</p>
-                    <p className="text-xs text-[hsl(155,15%,50%)] font-black uppercase tracking-widest">Advanced usage and rescue tips</p>
+                    <p className="font-black text-[hsl(160,10%,20%)] text-base italic leading-none">Rescue Field Guide</p>
+                    <p className="text-[10px] text-[hsl(155,15%,50%)] font-black uppercase tracking-widest mt-1">Advanced operational rescue tips</p>
                   </div>
-                  <ChevronRight size={20} className="text-[hsl(155,15%,80%)] group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight size={16} className="text-[hsl(155,15%,80%)] group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-5 p-6 hover:bg-red-50/50 transition-all text-left group"
+                  className="w-full flex items-center gap-4 p-5 hover:bg-red-50/50 transition-all text-left group"
                 >
-                  <div className="w-12 h-12 bg-red-100/50 rounded-2xl flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all shadow-sm">
-                    <LogOut size={22} />
+                  <div className="w-10 h-10 bg-red-100/50 rounded-xl flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all shadow-sm">
+                    <LogOut size={18} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-black text-red-500 text-lg italic">Abandon Mission</p>
-                    <p className="text-xs text-red-400/70 font-black uppercase tracking-widest">Sign out of this operational session</p>
+                    <p className="font-black text-red-500 text-base italic leading-none">Abandon Mission</p>
+                    <p className="text-[10px] text-red-400/70 font-black uppercase tracking-widest mt-1">Sign out of operational session</p>
                   </div>
-                  <div className="px-3 py-1 bg-red-50 rounded-lg text-[9px] font-black text-red-500 uppercase tracking-widest">Safety Key Required</div>
+                  <div className="px-2 py-0.5 bg-red-50 rounded-md text-[8px] font-black text-red-500 uppercase tracking-widest">Key Required</div>
                 </button>
              </div>
 

@@ -52,14 +52,23 @@ function MapComponentContent({
       // AUTO-LOCATION: Find the user immediately on load if no focusLocation is provided
       if (!focusLocation) {
         setShowLocatingOverlay(true);
+        // Safety timeout to dismiss overlay if GPS signal is weak/blocked
+        const timeoutId = setTimeout(() => {
+          setShowLocatingOverlay(false);
+          setIsLocating(false);
+        }, 12000);
+
         map.locate({ 
           setView: true, 
           maxZoom: 16, 
           watch: true, 
           enableHighAccuracy: true,
-          timeout: 15000,
+          timeout: 10000,
           maximumAge: 0
         });
+
+        map.once("locationfound", () => clearTimeout(timeoutId));
+        map.once("locationerror", () => clearTimeout(timeoutId));
       }
 
       map.on("locationfound", (e: any) => {
@@ -293,20 +302,32 @@ function MapComponentContent({
   function handleLocate() {
     if (!leafletMapRef.current) return;
     setIsLocating(true);
+    // Safety timeout
+    const timeoutId = setTimeout(() => {
+      setIsLocating(false);
+    }, 10000);
+
     try {
       leafletMapRef.current.locate({ 
         setView: true, 
         maxZoom: 16, 
         watch: true, 
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 8000,
         maximumAge: 0
       });
-      leafletMapRef.current.on("locationfound", () => setIsLocating(false));
-      leafletMapRef.current.on("locationerror", () => setIsLocating(false));
+      leafletMapRef.current.once("locationfound", () => {
+        setIsLocating(false);
+        clearTimeout(timeoutId);
+      });
+      leafletMapRef.current.once("locationerror", () => {
+        setIsLocating(false);
+        clearTimeout(timeoutId);
+      });
     } catch (err) {
       console.error("GPS Error:", err);
       setIsLocating(false);
+      clearTimeout(timeoutId);
     }
   }
 
