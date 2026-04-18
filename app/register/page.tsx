@@ -8,8 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { PawPrint, Mail, Lock, UserPlus, ArrowRight, Loader2, ShieldCheck, User, Phone } from "lucide-react";
-
-import { BackgroundDecoration } from "@/components/BackgroundDecoration";
+import { TermsModal } from "@/components/TermsModal";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
@@ -19,27 +18,64 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const router = useRouter();
+
+  const calculatePasswordStrength = (pass: string) => {
+    let score = 0;
+    if (pass.length === 0) return 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+
+  const strength = calculatePasswordStrength(password);
+  const strengthLabels = ["Very Weak", "Weak", "Medium", "Strong", "Very Strong"];
+  const strengthColors = [
+    "bg-gray-200",
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-green-500",
+  ];
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     
-    // Basic validations
+    // Detailed validations
     if (!fullName.trim()) {
       setError("Please enter your full name.");
       return;
     }
-    if (!phoneNumber.trim()) {
-      setError("Please enter your phone number.");
+
+    // Phone number validation (at least 10 digits)
+    const phoneDigits = phoneNumber.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      setError("Please enter a valid phone number (at least 10 digits).");
       return;
     }
+
+    if (!email.includes("@") || !email.includes(".")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (password !== confirm) {
       setError("Passwords do not match.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    
+    if (strength < 2) {
+      setError("Please choose a stronger password.");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError("You must accept the Terms of Agreement to continue.");
       return;
     }
     
@@ -165,7 +201,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
+              <div className="space-y-2">
                 <label className="block text-sm font-bold text-[hsl(160,10%.20%)] mb-2 ml-1">
                   Password
                 </label>
@@ -176,10 +212,30 @@ export default function RegisterPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[hsl(155,15%,90%)] focus:outline-none focus:ring-4 focus:ring-[hsl(155,15%,50%)]/10 focus:border-[hsl(155,15%,50%)] text-[hsl(160,10%,20%)] bg-white/50 transition-all font-medium text-xs sm:text-base"
-                    placeholder="6+ chars"
+                    placeholder="Min 8 chars"
                     required
                   />
                 </div>
+                
+                {password.length > 0 && (
+                  <div className="px-1 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[hsl(155,15%,50%)]">
+                        Strength: <span className={strength >= 3 ? "text-green-600" : strength >= 2 ? "text-yellow-600" : "text-red-600"}>{strengthLabels[strength]}</span>
+                      </span>
+                    </div>
+                    <div className="flex gap-1 h-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className={`flex-1 rounded-full transition-all duration-500 ${
+                            i <= strength ? strengthColors[strength] : "bg-gray-100"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-[hsl(160,10%,20%)] mb-2 ml-1">
@@ -197,6 +253,27 @@ export default function RegisterPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="flex items-center gap-3 px-1 py-2">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(155,15%,50%)] focus:ring-[hsl(155,15%,50%)] cursor-pointer"
+              />
+              <label htmlFor="terms" className="text-xs font-medium text-[hsl(155,15%,50%)] cursor-pointer select-none leading-tight">
+                I agree to the{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowTerms(true)}
+                  className="text-[hsl(155,15%,50%)] font-bold hover:underline"
+                >
+                  Terms and Conditions
+                </button>{" "}
+                and acknowledge the Privacy Policy.
+              </label>
             </div>
 
             <button
@@ -234,6 +311,8 @@ export default function RegisterPage() {
            </p>
         </div>
       </motion.div>
+
+      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
     </div>
   );
 }
