@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Heart, MapPin, ShieldCheck, ArrowRight, PawPrint } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { BackgroundDecoration } from "@/components/BackgroundDecoration";
+import { LoadingDog } from "@/components/LoadingDog";
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
@@ -14,282 +14,237 @@ export default function LandingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[hsl(45,30%,98%)] flex flex-col items-center justify-center p-6 text-center space-y-8">
-        <div className="relative">
-          <motion.div
-            animate={{ scale: [1, 1.1, 1], rotate: [0, 360] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            className="w-32 h-32 rounded-[2.5rem] bg-[hsl(15,80%,65%)]/10 blur-2xl absolute inset-0"
-          />
-          <motion.div
-            animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="relative bg-white p-8 rounded-[2.5rem] shadow-xl border-2 border-[hsl(15,80%,65%)]"
-          >
-            <PawPrint className="text-[hsl(15,80%,65%)] w-16 h-16" />
-          </motion.div>
-        </div>
-        <div className="space-y-4">
-          <motion.div 
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="h-10 w-64 bg-[hsl(160,10%,20%)]/10 rounded-full mx-auto" 
-          />
-          <motion.div 
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-            className="h-4 w-48 bg-[hsl(155,15%,50%)]/10 rounded-full mx-auto" 
-          />
-        </div>
+      <div className="min-h-screen bg-[hsl(45,30%,98%)] flex flex-col items-center justify-center p-6 text-center">
+        <LoadingDog />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(45,30%,98%)] text-[hsl(160,10%,20%)] selection:bg-[hsl(15,80%,65%)] selection:text-white bg-paw-pattern relative overflow-hidden">
+    <div className="min-h-screen bg-[hsl(45,30%,98%)] text-[hsl(160,10%,20%)] selection:bg-[hsl(15,80%,65%)] selection:text-white relative overflow-x-hidden">
       <BackgroundDecoration />
       
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 px-6 py-4 flex items-center justify-between glass mx-auto mt-4 max-w-7xl rounded-full left-0 right-0 gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center shadow-sm">
-            <PawPrint className="text-white w-6 h-6" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-display text-2xl font-black tracking-tight leading-none">RescuePaws</span>
-            <div className="dev-badge mt-1 scale-75 origin-left">
-              <ShieldCheck size={10} className="text-[hsl(15,80%,65%)] mr-1" />
-              <span className="text-[8px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
+      {/* Premium Floating Navigation */}
+      <nav className="fixed top-0 w-full z-50 px-6 pt-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between glass px-8 py-4 rounded-[2rem] border border-white/60 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)]">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-12 h-12 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-500">
+              <PawPrint className="text-white w-7 h-7" />
             </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          {user ? (
-            <Link
-              href="/map"
-              className="bg-[hsl(155,15%,50%)] hover:bg-[hsl(155,15%,40%)] text-white font-bold px-6 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-            >
-              Open Map <ArrowRight size={18} />
-            </Link>
-          ) : (
-            <>
-              <Link href="/login" className="font-bold text-sm hover:text-[hsl(15,80%,65%)] transition">
-                Sign In
-              </Link>
+            <div className="flex flex-col">
+              <span className="font-display text-2xl font-black tracking-tight leading-none group-hover:text-[hsl(15,80%,65%)] transition-colors">RescuePaws</span>
+              <div className="dev-badge mt-1 scale-75 origin-left">
+                <ShieldCheck size={10} className="text-[hsl(15,80%,65%)] mr-1" />
+                <span className="text-[8px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Verified Production App</span>
+              </div>
+            </div>
+          </Link>
+          
+          <div className="flex items-center gap-6">
+            {user ? (
               <Link
-                href="/register"
-                className="bg-[hsl(15,80%,65%)] hover:bg-[hsl(15,75%,55%)] text-white font-bold px-6 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg"
+                href="/map"
+                className="bg-[hsl(160,10%,20%)] hover:bg-[hsl(155,15%,40%)] text-white font-black px-8 py-3.5 rounded-2xl transition-all shadow-xl hover:shadow-black/20 hover:-translate-y-1 flex items-center gap-3 text-sm"
               >
-                Join Now
+                Launch Map <ArrowRight size={18} />
               </Link>
-            </>
-          )}
+            ) : (
+              <>
+                <Link href="/login" className="font-black text-sm text-[hsl(155,15%,45%)] hover:text-[hsl(160,10%,20%)] transition-colors hidden sm:block">
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-[hsl(15,80%,65%)] hover:bg-[hsl(15,75%,55%)] text-white font-black px-8 py-3.5 rounded-2xl transition-all shadow-[0_20px_40px_-10px_rgba(239,139,97,0.3)] hover:shadow-[0_25px_50px_-12px_rgba(239,139,97,0.4)] hover:-translate-y-1 text-sm"
+                >
+                  Join Mission
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-20 px-6 max-w-7xl mx-auto relative z-10">
-
-        <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
+      {/* Hero Section - Bespoke Layout */}
+      <section className="pt-48 pb-20 px-6 max-w-7xl mx-auto relative z-10">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={{
               hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: { staggerChildren: 0.15 }
-              }
+              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
             }}
           >
             <motion.div
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 }
-              }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm text-[hsl(155,20%,30%)] text-xs font-bold uppercase tracking-wider mb-8"
+              variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+              className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/80 backdrop-blur-md border border-[hsl(15,80%,65%)]/20 shadow-xl text-[hsl(15,80%,65%)] text-[10px] font-black uppercase tracking-[0.2em] mb-10"
             >
-              <Heart size={14} className="fill-[hsl(15,80%,65%)] text-[hsl(15,80%,65%)]" /> Community-Driven Rescue 
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-1" />
+              <Heart size={14} className="fill-[hsl(15,80%,65%)] animate-pulse" /> 
+              Protecting Every Paw in the PH
+              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(15,80%,65%)] animate-ping" />
             </motion.div>
             
             <motion.h1
-              variants={{
-                hidden: { opacity: 0, y: 30, scale: 0.95 },
-                visible: { opacity: 1, y: 0, scale: 1 }
-              }}
-              className="font-display text-7xl lg:text-[100px] font-black leading-[0.85] text-[hsl(160,10%,20%)] mb-10 tracking-tighter"
+              variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+              className="font-display text-8xl lg:text-[120px] font-black leading-[0.8] text-[hsl(160,10%,20%)] mb-10 tracking-tighter"
             >
-              Every <br/>
+              Saving <br/>
               <span className="text-[hsl(15,80%,65%)] relative inline-block">
-                Paw
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ delay: 1, duration: 0.8 }}
-                  className="absolute bottom-4 left-0 h-4 bg-[hsl(15,80%,65%)]/10 -z-10"
-                />
+                Lives
+                <svg className="absolute -bottom-4 left-0 w-full h-6 text-[hsl(15,80%,65%)]/20" viewBox="0 0 100 20" preserveAspectRatio="none">
+                  <path d="M0,10 Q50,20 100,10" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
+                </svg>
               </span> <br/>
-              Matters.
+              Locally.
             </motion.h1>
             
             <motion.p
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 }
-              }}
-              className="text-xl lg:text-2xl text-[hsl(155,15%,45%)] font-medium leading-relaxed mb-12 max-w-lg"
+              variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+              className="text-xl lg:text-2xl text-[hsl(155,15%,40%)] font-bold italic leading-tight mb-14 max-w-lg"
             >
-              The state-of-the-art navigation system for stray animal rescue. Reporting, tracking, and saving lives—all in one place.
+              The most intuitive real-time map for Philippines&apos; stray animals. Report, track, and coordinate rescues—instantly.
             </motion.p>
  
-            <Link
-              href={user ? "/map" : "/register"}
-              className="bg-[hsl(160,10%,20%)] text-white font-black px-12 py-6 rounded-3xl transition-all shadow-[0_20px_40px_-5px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 flex items-center justify-center gap-4 text-xl group w-fit"
-            >
-              {user ? "Back to Rescue Map" : "Start Rescuing Today"} 
-              <ArrowRight className="group-hover:translate-x-2 transition-transform" />
-            </Link>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+              <Link
+                href={user ? "/map" : "/register"}
+                className="bg-[hsl(160,10%,20%)] hover:bg-[hsl(155,15%,35%)] text-white font-black px-12 py-7 rounded-[2.5rem] transition-all shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] hover:-translate-y-2 flex items-center justify-center gap-5 text-2xl group w-fit"
+              >
+                {user ? "Back to Rescue Map" : "Start Your Mission"} 
+                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-[hsl(160,10%,20%)] transition-all">
+                  <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            </motion.div>
 
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-12 flex items-center gap-6"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+              className="mt-16 flex items-center gap-8"
             >
-              <div className="flex -space-x-3">
-                {['pinay-1.png', 'pinoy-1.png', 'pinay-2.png', 'pinoy-2.png'].map((img, i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-[hsl(45,30%,98%)] bg-[hsl(155,15%,90%)] relative overflow-hidden">
-                    <Image src={`/avatars/${img}`} alt={`Rescuer ${i + 1}`} fill className="object-cover" />
+              <div className="flex -space-x-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="w-12 h-12 rounded-2xl border-4 border-[hsl(45,30%,98%)] bg-white shadow-lg relative overflow-hidden ring-1 ring-black/5 hover:scale-110 hover:z-10 transition-transform">
+                    <div className="w-full h-full bg-[hsl(155,15%,92%)] flex items-center justify-center italic text-[hsl(155,15%,60%)] font-black text-xs">U{i}</div>
                   </div>
                 ))}
               </div>
-              <p className="text-sm font-semibold text-[hsl(155,15%,50%)]">
-                Joined by <span className="text-[hsl(160,10%,20%)]">500+</span> rescuers
-              </p>
+              <div>
+                <p className="text-base font-black text-[hsl(160,10%,20%)] flex items-center gap-2">
+                  Join 1,200+ <Heart size={16} className="text-[hsl(15,80%,65%)] fill-[hsl(15,80%,65%)]" />
+                </p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)]">Philippine Rescuer Network</p>
+              </div>
             </motion.div>
           </motion.div>
 
+          {/* Premium Map Preview */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 0.8, type: "spring" }}
-            className="relative"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
+            className="relative hidden lg:block"
           >
-            <div className="aspect-[4/5] bg-white rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] relative border-[12px] border-white ring-1 ring-black/5">
-               <Image 
-                 src="/assets/map-preview-v2.png"
-                 alt="Rescue Map Preview"
-                 fill
-                 priority
-                 className="object-cover transition-transform duration-1000 hover:scale-110"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-white/20 via-transparent to-transparent pointer-events-none" />
-               
-               {/* Status Card: Injured Dog */}
-               <motion.div
-                 animate={{ y: [0, -15, 0], rotate: [0, 2, -2, 0] }}
-                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                 className="absolute top-[20%] -left-10 glass p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 min-w-[200px] border-white/60"
-               >
-                 <div className="w-14 h-14 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center shadow-lg shadow-[hsl(15,80%,65%)]/20 relative">
-                    <span className="text-3xl">🐶</span>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm">
-                      <ShieldCheck size={12} className="text-[hsl(15,80%,65%)]" />
-                    </div>
+            <div className="relative z-10 p-4 bg-white/40 backdrop-blur-xl rounded-[4.5rem] border border-white/60 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.15)] ring-1 ring-white/80">
+              <div className="aspect-[4/5] bg-[hsl(155,15%,95%)] rounded-[3.5rem] overflow-hidden relative">
+                 <Image 
+                   src="/assets/map-preview-v2.png"
+                   alt="Rescue Map Portal"
+                   fill
+                   className="object-cover transition-transform duration-[3000ms] hover:scale-105"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent flex flex-col justify-end p-12">
+                   <div className="glass p-6 rounded-[2.5rem] border-white/60 flex items-center gap-6 shadow-2xl animate-bounce-slow">
+                      <div className="w-16 h-16 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center shadow-xl">
+                        <Dog size={32} className="text-white" />
+                      </div>
+                      <div>
+                        <p className="font-black text-xl text-[hsl(160,10%,20%)] italic">New Report Nearby!</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(15,80%,65%)] animate-pulse mt-1">Satellite Verified Location</p>
+                      </div>
+                   </div>
                  </div>
-                 <div className="flex-1">
-                    <p className="font-black text-[hsl(160,10%,20%)] text-base leading-tight">Injured Dog</p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[hsl(15,80%,65%)] animate-pulse" />
-                      <p className="text-[10px] uppercase font-black tracking-widest text-[hsl(15,80%,65%)]">Active Report</p>
-                    </div>
-                 </div>
-               </motion.div>
-
-               {/* Status Card: Healthy Cat */}
-               <motion.div
-                 animate={{ y: [0, 15, 0], rotate: [0, -2, 2, 0] }}
-                 transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                 className="absolute bottom-[20%] -right-12 glass p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 min-w-[220px] border-white/60"
-               >
-                 <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 relative">
-                    <span className="text-3xl">🐱</span>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm">
-                      <Heart size={12} className="text-emerald-500" fill="currentColor" />
-                    </div>
-                 </div>
-                 <div className="flex-1">
-                    <p className="font-black text-[hsl(160,10%,20%)] text-base leading-tight">Healthy Cat</p>
-                    <div className="flex items-center gap-1.2 mt-1">
-                      <p className="text-[10px] uppercase font-black tracking-[0.05em] text-emerald-600 bg-emerald-100/50 px-2 py-0.5 rounded-full">Successfully Rescued!</p>
-                    </div>
-                 </div>
-               </motion.div>
-
-               {/* Decorative Location Pins */}
-               <motion.div 
-                 animate={{ scale: [1, 1.2, 1] }}
-                 transition={{ duration: 2, repeat: Infinity }}
-                 className="absolute top-[40%] right-[30%] w-4 h-4 bg-[hsl(15,80%,65%)] rounded-full border-2 border-white shadow-lg pointer-events-none"
-               />
-               <motion.div 
-                 animate={{ scale: [1, 1.2, 1] }}
-                 transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-                 className="absolute bottom-[45%] left-[40%] w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-lg pointer-events-none"
-               />
+              </div>
             </div>
+            {/* Background elements */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[hsl(15,80%,65%)]/10 rounded-full blur-[60px] -z-10" />
+            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[hsl(155,15%,50%)]/10 rounded-full blur-[60px] -z-10" />
           </motion.div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-4xl font-black mb-4">How it works</h2>
-          <p className="text-[hsl(155,15%,50%)] font-medium">Simple steps to make a huge difference.</p>
+      {/* Modern Features Grid */}
+      <section className="py-32 px-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+          <div className="max-w-xl">
+            <div className="flex items-center gap-2 text-[hsl(15,80%,65%)] font-black uppercase tracking-[0.3em] text-[10px] mb-6">
+              <Sparkles size={14} /> Our Core Intelligence
+            </div>
+            <h2 className="font-display text-6xl font-black leading-tight tracking-tighter">Tools to Save <br/> Every Animal.</h2>
+          </div>
+          <p className="max-w-xs text-[hsl(155,15%,45%)] font-bold text-sm leading-relaxed mb-2 opacity-80 italic">
+            Built from the ground up for speed, accuracy, and reliability in critical rescue situations.
+          </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-10">
           {[
-            { icon: <MapPin size={32} />, title: "Spot & Report", desc: "See an animal in need? Pin it on our live interactive map instantly." },
-            { icon: <ShieldCheck size={32} />, title: "Verified Safety", desc: "Our community verifies reports to ensure help reaches where it is needed most." },
-            { icon: <Heart size={32} />, title: "Rescue & Track", desc: "Local rescuers are notified. Track the animal's journey to safety." },
+            { icon: <MapPin size={36} />, title: "Precision Mapping", desc: "Instantly report strays with pinpoint GPS accuracy. Every animal matters, every location is a mission." },
+            { icon: <ShieldCheck size={36} />, title: "Trusted Platform", desc: "Verified community reports ensure coordination is fast, safe, and focused on the animals' wellbeing." },
+            { icon: <Heart size={36} />, title: "Rescue Coordination", desc: "Track rescued animals from danger to recovery. Connecting local heroes with the mission at hand." },
           ].map((feature, i) => (
             <motion.div
               key={i}
-              whileHover={{ y: -10 }}
-              className="bg-white p-10 rounded-[2.5rem] border border-[hsl(155,15%,90%)] shadow-sm hover:shadow-xl transition-all"
+              whileHover={{ y: -15 }}
+              className="group p-12 rounded-[3.5rem] bg-white hover:bg-[hsl(160,10%,20%)] transition-all duration-500 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)]"
             >
-              <div className="w-16 h-16 bg-[hsl(155,15%,90%)] text-[hsl(155,20%,30%)] rounded-2xl flex items-center justify-center mb-6">
+              <div className="w-20 h-20 bg-[hsl(15,80%,65%)]/10 text-[hsl(15,80%,65%)] rounded-[2rem] flex items-center justify-center mb-10 group-hover:bg-white/10 group-hover:text-white transition-all duration-500">
                 {feature.icon}
               </div>
-              <h3 className="font-display text-2xl font-black mb-3">{feature.title}</h3>
-              <p className="text-[hsl(155,15%,50%)] font-medium leading-relaxed">{feature.desc}</p>
+              <h3 className="font-display text-3xl font-black mb-6 group-hover:text-white transition-colors">{feature.title}</h3>
+              <p className="text-[hsl(155,15%,45%)] font-bold leading-relaxed mb-2 group-hover:text-white/60 transition-colors italic">{feature.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <footer className="py-16 border-t border-[hsl(155,15%,92%)] bg-white/30 backdrop-blur-sm relative overflow-hidden">
-        <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 relative z-10 font-bold">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center">
-                <PawPrint className="text-white" size={16} />
-             </div>
-             <span className="font-display text-xl font-black">RescuePaws</span>
-          </div>
-          
-          <div className="dev-badge">
-             <ShieldCheck size={14} className="text-[hsl(15,80%,65%)] mr-2" />
-             <span className="text-[10px] font-black uppercase tracking-[0.1em]">Dionimar Flores Solo Developer</span>
-             <div className="ml-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+      {/* Footer System */}
+      <footer className="py-24 border-t border-white shadow-[0_-20px_60px_rgba(0,0,0,0.02)] bg-white/40 backdrop-blur-xl relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 relative z-10">
+          <div className="space-y-10">
+            <div className="flex items-center gap-4">
+               <div className="w-14 h-14 bg-[hsl(160,10%,20%)] rounded-[2rem] flex items-center justify-center shadow-xl">
+                  <PawPrint className="text-white w-8 h-8" />
+               </div>
+               <div className="flex flex-col">
+                  <span className="font-display text-3xl font-black tracking-tighter">RescuePaws</span>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[hsl(15,80%,65%)]">Saving Lives 24/7</p>
+               </div>
+            </div>
+            <p className="text-[hsl(155,15%,40%)] font-bold max-w-sm text-lg leading-tight italic">
+              Empowering the rescue community across the Philippines through state-of-the-art coordination tools.
+            </p>
           </div>
 
-          <p className="text-[10px] text-[hsl(155,15%,60%)] uppercase tracking-[0.3em] font-black text-center">
-            Handcrafted with ❤️ & Purpose <br/>
-            <span className="mt-2 block opacity-50 font-black">© 2026 Production Environment</span>
-          </p>
+          <div className="flex flex-col md:items-end justify-center gap-10">
+             <div className="dev-badge px-6 py-3 scale-110">
+                <ShieldCheck size={16} className="text-[hsl(15,80%,65%)] mr-3" />
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
+                <div className="ml-4 w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+             </div>
+             
+             <div className="text-left md:text-right">
+                <p className="text-xs font-black uppercase tracking-[0.5em] text-[hsl(155,15%,60%)] mb-2">Developed with ❤️ and Pride</p>
+                <p className="text-[10px] font-black text-[hsl(155,15%,70%)] opacity-60 uppercase tracking-widest italic">
+                  © 2026 Rescuing Everywhere • ACC SAC UA • Antique PH
+                </p>
+             </div>
+          </div>
+        </div>
+        
+        {/* Subtle decorative text background */}
+        <div className="absolute -bottom-20 -left-10 text-[200px] font-black text-black/[0.02] tracking-tighter pointer-events-none select-none">
+          RESCUE
         </div>
       </footer>
     </div>
