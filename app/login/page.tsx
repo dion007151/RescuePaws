@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -9,13 +9,24 @@ import { motion } from "framer-motion";
 import { PawPrint, Mail, Lock, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 
 import { BackgroundDecoration } from "@/components/BackgroundDecoration";
+import { TermsModal } from "@/components/TermsModal";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +48,14 @@ export default function LoginPage() {
         throw new Error("Firebase is not configured. Please add your API keys to .env.local");
       }
       await signInWithEmailAndPassword(auth, email, password);
+
+      // Persist email if rememberMe is checked
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+
       router.push("/map");
     } catch (err: unknown) {
       console.error("Login error:", err);
@@ -121,6 +140,27 @@ export default function LoginPage() {
               </div>
             </div>
 
+            <div className="flex items-center justify-between px-1">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(15,80%,65%)] focus:ring-[hsl(15,80%,65%)] cursor-pointer transition-all"
+                />
+                <span className="text-xs font-bold text-[hsl(155,15%,50%)] group-hover:text-[hsl(155,15%,40%)] transition-colors">
+                  Remember Me
+                </span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowTerms(true)}
+                className="text-[10px] font-black uppercase tracking-wider text-[hsl(15,80%,65%)] hover:underline underline-offset-4"
+              >
+                Terms of Service
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -156,6 +196,8 @@ export default function LoginPage() {
            </p>
         </div>
       </motion.div>
+
+      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
     </div>
   );
 }
