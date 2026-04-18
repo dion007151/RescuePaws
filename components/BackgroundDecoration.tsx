@@ -20,31 +20,31 @@ export function BackgroundDecoration() {
     ...ANIMALS[i % ANIMALS.length],
     left: `${(i * 15 + 5) % 95}%`,
     top: `${(i * 23 + 10) % 90}%`,
-    duration: `${15 + (i % 10)}s`,
-    delay: `${-i * 3.5}s`,
+    duration: `${25 + (i % 15)}s`, // Slower for more premium feel
+    delay: `${-i * 5.2}s`,
   }));
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Soft Cloud Blobs */}
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[radial-gradient(circle_at_top_right,hsl(155,15%,96%),transparent_50%),radial-gradient(circle_at_bottom_left,hsl(15,80%,96%),transparent_50%)]">
+      {/* Sophisticated Fluid Blobs */}
       <div 
-        className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-[hsl(155,15%,92%)] rounded-full blur-[120px] opacity-40 animate-fluid-blob"
-        style={{ animationDuration: '25s' }}
+        className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[hsl(155,20%,90%)] rounded-full blur-[140px] opacity-40 animate-fluid-blob mix-blend-multiply"
+        style={{ animationDuration: '35s' }}
       />
       <div 
-        className="absolute -bottom-[20%] -right-[10%] w-[70%] h-[70%] bg-[hsl(15,80%,92%)] rounded-full blur-[120px] opacity-40 animate-fluid-blob"
-        style={{ animationDuration: '30s', animationDirection: 'reverse' }}
+        className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-[hsl(15,80%,90%)] rounded-full blur-[140px] opacity-40 animate-fluid-blob mix-blend-multiply"
+        style={{ animationDuration: '45s', animationDirection: 'reverse' }}
       />
       <div 
-        className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-[hsl(200,30%,94%)] rounded-full blur-[100px] opacity-30 animate-fluid-blob"
-        style={{ animationDuration: '22s', animationDelay: '-10s' }}
+        className="absolute top-[20%] left-[30%] w-[35%] h-[35%] bg-[hsl(200,30%,92%)] rounded-full blur-[120px] opacity-20 animate-fluid-blob mix-blend-screen"
+        style={{ animationDuration: '28s', animationDelay: '-12s' }}
       />
 
-      {/* Floating Animal Stream */}
+      {/* Floating Animal Stream - Subtle & Premium */}
       {decorationItems.map((item, i) => (
         <div
           key={i}
-          className="absolute animate-float-animal"
+          className="absolute animate-float-animal opacity-[0.15] grayscale contrast-125"
           style={{
             left: item.left,
             top: item.top,
@@ -52,11 +52,14 @@ export function BackgroundDecoration() {
             "--float-delay": item.delay,
           } as React.CSSProperties}
         >
-          <div className={`${item.icon.match(/dog|cat|lion|panda/i) ? 'animate-wiggle' : ''} ${item.size} select-none`}>
+          <div className={`${item.icon.match(/dog|cat|lion|panda/i) ? 'animate-wiggle' : ''} ${item.size} select-none filter blur-[0.5px]`}>
             {item.icon}
           </div>
         </div>
       ))}
+
+      {/* Subtle Grid Overlay */}
+      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
     </div>
   );
 }

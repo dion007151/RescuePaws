@@ -73,89 +73,99 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(45,30%,98%)] flex flex-col items-center justify-center p-4 relative overflow-hidden bg-paw-pattern">
+    <div className="min-h-screen bg-[hsl(45,30%,98%)] flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <BackgroundDecoration />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+        className="w-full max-w-lg relative z-10"
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center justify-center w-16 h-16 bg-[hsl(15,80%,65%)] rounded-[2rem] mb-4 shadow-lg hover:rotate-6 transition-transform">
-            <PawPrint className="text-white w-8 h-8" />
-          </Link>
-          <h1 className="font-display text-4xl font-black text-[hsl(160,10%,20%)] tracking-tight">
+        {/* Logo Section */}
+        <div className="text-center mb-10">
+          <motion.div 
+            whileHover={{ scale: 1.05, rotate: -5 }}
+            className="inline-block relative"
+          >
+            <Link href="/" className="flex items-center justify-center w-20 h-20 bg-[hsl(15,80%,65%)] rounded-[2.5rem] mb-6 shadow-[0_20px_40px_-5px_rgba(239,139,97,0.3)]">
+              <PawPrint className="text-white w-10 h-10" />
+            </Link>
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-xl shadow-lg flex items-center justify-center">
+              <ShieldCheck className="text-[hsl(15,80%,65%)] w-5 h-5" />
+            </div>
+          </motion.div>
+          <h1 className="font-display text-5xl font-black text-[hsl(160,10%,20%)] tracking-tight leading-none mb-3">
             Welcome Back
           </h1>
-          <p className="text-[hsl(155,15%,50%)] mt-2 font-medium">Continue your rescue mission</p>
+          <p className="text-[hsl(155,15%,45%)] font-bold uppercase tracking-[0.2em] text-[10px]">Continue your life-saving mission</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-8 border border-white/50">
+        {/* Premium Login Card */}
+        <div className="glass shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] rounded-[3rem] p-10 border border-white/60 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[hsl(15,80%,65%)]/5 to-transparent rounded-br-[100px] pointer-events-none" />
           {error && (
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl mb-6 text-sm font-bold flex items-center gap-2"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-3xl mb-8 text-sm font-black flex items-center gap-3"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               {error}
             </motion.div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-sm font-bold text-[hsl(160,10%,20%)] mb-2 ml-1">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-1">
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(155,15%,50%)]" size={18} />
+              <div className="relative group">
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[hsl(155,15%,50%)] group-focus-within:text-[hsl(160,10%,20%)] transition-colors" size={20} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[hsl(155,15%,90%)] focus:outline-none focus:ring-4 focus:ring-[hsl(15,80%,65%)]/10 focus:border-[hsl(15,80%,65%)] text-[hsl(160,10%,20%)] bg-white/50 transition-all font-medium"
-                  placeholder="name@example.com"
+                  className="w-full pl-14 pr-6 py-5 rounded-2xl border border-[hsl(155,15%,92%)] focus:outline-none focus:ring-4 focus:ring-[hsl(15,80%,65%)]/10 focus:border-[hsl(15,80%,65%)] text-[hsl(160,10%,20%)] bg-white/40 backdrop-blur-sm transition-all font-bold placeholder:text-[hsl(155,15%,85%)] placeholder:font-medium"
+                  placeholder="name@email.com"
                   required
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-[hsl(160,10%,20%)] mb-2 ml-1">
+            <div className="space-y-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-1">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(155,15%,50%)]" size={18} />
+              <div className="relative group">
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-[hsl(155,15%,50%)] group-focus-within:text-[hsl(160,10%,20%)] transition-colors" size={20} />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[hsl(155,15%,90%)] focus:outline-none focus:ring-4 focus:ring-[hsl(15,80%,65%)]/10 focus:border-[hsl(15,80%,65%)] text-[hsl(160,10%,20%)] bg-white/50 transition-all font-medium"
+                  className="w-full pl-14 pr-6 py-5 rounded-2xl border border-[hsl(155,15%,92%)] focus:outline-none focus:ring-4 focus:ring-[hsl(15,80%,65%)]/10 focus:border-[hsl(15,80%,65%)] text-[hsl(160,10%,20%)] bg-white/40 backdrop-blur-sm transition-all font-bold placeholder:text-[hsl(155,15%,85%)] placeholder:font-medium"
                   placeholder="••••••••"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-1">
-              <label className="flex items-center gap-2 cursor-pointer group">
+            <div className="flex items-center justify-between px-1 bg-[hsl(155,15%,98%)] p-4 rounded-2xl border border-[hsl(155,15%,95%)]">
+              <label className="flex items-center gap-3 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-5 h-5 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(15,80%,65%)] focus:ring-[hsl(15,80%,65%)] cursor-pointer transition-all"
+                  className="w-6 h-6 rounded-lg border-[hsl(155,15%,90%)] text-[hsl(15,80%,65%)] focus:ring-[hsl(15,80%,65%)] cursor-pointer transition-all"
                 />
-                <span className="text-xs font-bold text-[hsl(155,15%,50%)] group-hover:text-[hsl(155,15%,40%)] transition-colors">
-                  Remember Me
+                <span className="text-xs font-bold text-[hsl(155,15%,50%)] group-hover:text-[hsl(160,10%,20%)] transition-colors">
+                  Stay Signed In
                 </span>
               </label>
               <button
                 type="button"
                 onClick={() => setShowTerms(true)}
-                className="text-[10px] font-black uppercase tracking-wider text-[hsl(15,80%,65%)] hover:underline underline-offset-4"
+                className="text-[10px] font-black uppercase tracking-wider text-[hsl(15,80%,65%)] hover:underline underline-offset-8 transition-all"
               >
                 Terms of Service
               </button>
@@ -164,36 +174,34 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[hsl(15,80%,65%)] hover:bg-[hsl(15,75%,55%)] text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-[hsl(15,80%,65%)]/20 hover:shadow-[hsl(15,80%,65%)]/40 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2 group"
+              className="w-full bg-[hsl(15,80%,65%)] hover:bg-[hsl(15,75%,55%)] text-white font-black py-6 rounded-[2rem] transition-all shadow-[0_30px_60px_-15px_rgba(239,139,97,0.3)] hover:shadow-[0_40px_80px_-20px_rgba(239,139,97,0.4)] hover:-translate-y-1.5 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-4 text-xl group"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={20} />
+                <Loader2 className="animate-spin" size={24} />
               ) : (
                 <>
-                  Sign In <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  Sign In <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-[hsl(155,15%,95%)] text-center">
-            <p className="text-[hsl(155,15%,50%)] text-sm font-medium">
-              New to RescuePaws?{" "}
-              <Link href="/register" className="text-[hsl(15,80%,65%)] font-black hover:underline underline-offset-4 transition">
-                Create Account
-              </Link>
-            </p>
-          </div>
+          <p className="mt-10 text-center text-sm font-bold text-[hsl(155,15%,45%)]">
+            New to the mission?{" "}
+            <Link href="/register" className="text-[hsl(15,80%,65%)] underline underline-offset-4 hover:opacity-70 transition-opacity ml-1">
+              Create Account
+            </Link>
+          </p>
         </div>
 
-        <div className="text-center mt-12 flex flex-col items-center gap-3">
-           <div className="dev-badge scale-90">
-             <ShieldCheck size={12} className="text-[hsl(15,80%,65%)] mr-1.5" />
-             <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores Solo Developer</span>
-           </div>
-           <p className="text-[hsl(155,15%,90%)] text-[9px] font-black uppercase tracking-widest italic opacity-50">
-             Every paw matters • Together we save lives
-           </p>
+        <div className="text-center mt-12 space-y-4">
+          <div className="dev-badge inline-flex mx-auto scale-110">
+            <ShieldCheck size={14} className="text-[hsl(15,80%,65%)] mr-2" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(160,10%,20%)]">Secure Rescuer Access</span>
+          </div>
+          <p className="text-[hsl(155,15%,60%)] text-[9px] font-black uppercase tracking-[0.3em] font-display">
+            Designed for Impact • Built for Rescue
+          </p>
         </div>
       </motion.div>
 
