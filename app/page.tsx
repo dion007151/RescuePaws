@@ -176,43 +176,68 @@ export default function LandingPage() {
             transition={{ duration: 0.8, type: "spring" }}
             className="relative"
           >
-            <div className="aspect-[4/5] bg-[hsl(155,15%,90%)] rounded-[3rem] overflow-hidden shadow-2xl relative border-8 border-white">
+            <div className="aspect-[4/5] bg-white rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] relative border-[12px] border-white ring-1 ring-black/5">
                <Image 
-                 src="https://api.mapbox.com/styles/v1/mapbox/light-v10/static/120.9842,14.5995,12,0/800x1000?access_token=pk.eyJ1IjoiZGlvbmlzaW9qciIsImEiOiJjbGo3amQzdmowM2RnM2RwN3M3eGpxZzdzIn0.A6v_x_O_X_A"
+                 src="/assets/map-preview-v2.png"
                  alt="Rescue Map Preview"
                  fill
                  priority
-                 className="object-cover opacity-60"
+                 className="object-cover transition-transform duration-1000 hover:scale-110"
                />
-               <div className="absolute inset-0 bg-gradient-to-t from-[hsl(155,15%,90%)] via-transparent to-transparent" />
+               <div className="absolute inset-0 bg-gradient-to-t from-white/20 via-transparent to-transparent pointer-events-none" />
                
+               {/* Status Card: Injured Dog */}
                <motion.div
-                 animate={{ y: [0, -10, 0] }}
-                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                 className="absolute top-1/4 -left-6 bg-white p-4 rounded-3xl shadow-xl flex items-center gap-3"
+                 animate={{ y: [0, -15, 0], rotate: [0, 2, -2, 0] }}
+                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                 className="absolute top-[20%] -left-10 glass p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 min-w-[200px] border-white/60"
                >
-                 <div className="w-10 h-10 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center">
-                    <span className="text-xl">🐶</span>
+                 <div className="w-14 h-14 bg-[hsl(15,80%,65%)] rounded-2xl flex items-center justify-center shadow-lg shadow-[hsl(15,80%,65%)]/20 relative">
+                    <span className="text-3xl">🐶</span>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm">
+                      <ShieldCheck size={12} className="text-[hsl(15,80%,65%)]" />
+                    </div>
                  </div>
-                 <div>
-                    <p className="font-bold text-sm">Injured Dog</p>
-                    <p className="text-[10px] uppercase font-black tracking-wider text-[hsl(15,80%,65%)]">Pending Help</p>
+                 <div className="flex-1">
+                    <p className="font-black text-[hsl(160,10%,20%)] text-base leading-tight">Injured Dog</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[hsl(15,80%,65%)] animate-pulse" />
+                      <p className="text-[10px] uppercase font-black tracking-widest text-[hsl(15,80%,65%)]">Active Report</p>
+                    </div>
                  </div>
                </motion.div>
 
+               {/* Status Card: Healthy Cat */}
                <motion.div
-                 animate={{ y: [0, 10, 0] }}
-                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                 className="absolute bottom-1/4 -right-4 bg-white p-4 rounded-3xl shadow-xl flex items-center gap-3"
+                 animate={{ y: [0, 15, 0], rotate: [0, -2, 2, 0] }}
+                 transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                 className="absolute bottom-[20%] -right-12 glass p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 min-w-[220px] border-white/60"
                >
-                 <div className="w-10 h-10 bg-[hsl(155,15%,50%)] rounded-xl flex items-center justify-center">
-                    <span className="text-xl">🐱</span>
+                 <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 relative">
+                    <span className="text-3xl">🐱</span>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm">
+                      <Heart size={12} className="text-emerald-500" fill="currentColor" />
+                    </div>
                  </div>
-                 <div>
-                    <p className="font-bold text-sm">Healthy Cat</p>
-                    <p className="text-[10px] uppercase font-black tracking-wider text-emerald-500 font-bold">Rescued!</p>
+                 <div className="flex-1">
+                    <p className="font-black text-[hsl(160,10%,20%)] text-base leading-tight">Healthy Cat</p>
+                    <div className="flex items-center gap-1.2 mt-1">
+                      <p className="text-[10px] uppercase font-black tracking-[0.05em] text-emerald-600 bg-emerald-100/50 px-2 py-0.5 rounded-full">Successfully Rescued!</p>
+                    </div>
                  </div>
                </motion.div>
+
+               {/* Decorative Location Pins */}
+               <motion.div 
+                 animate={{ scale: [1, 1.2, 1] }}
+                 transition={{ duration: 2, repeat: Infinity }}
+                 className="absolute top-[40%] right-[30%] w-4 h-4 bg-[hsl(15,80%,65%)] rounded-full border-2 border-white shadow-lg pointer-events-none"
+               />
+               <motion.div 
+                 animate={{ scale: [1, 1.2, 1] }}
+                 transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
+                 className="absolute bottom-[45%] left-[40%] w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-lg pointer-events-none"
+               />
             </div>
           </motion.div>
         </div>
