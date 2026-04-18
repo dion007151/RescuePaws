@@ -17,15 +17,16 @@ interface ReportFormProps {
   onSuccess: () => void;
 }
 
-export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormProps) {
-  const { user, profile } = useAuth();
   const [animalType, setAnimalType] = useState<"dog" | "cat" | "other">("dog");
   const [condition, setCondition] = useState<"injured" | "hungry" | "sick">("hungry");
+  const [category, setCategory] = useState<"stray" | "lost">("stray");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState<string>("Locating legit address...");
   const [isGeocoding, setIsGeocoding] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "processing" | "recording" | "success">("idle");
   const [error, setError] = useState("");
@@ -60,7 +61,15 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
     if (file) {
       setImageFile(file);
       const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+        // Trigger Mock AI Analysis
+        setIsAnalyzing(true);
+        setTimeout(() => {
+          setIsAnalyzing(false);
+          setAiAnalysis("AI Scan: Optimal visibility. Condition verified.");
+        }, 2500);
+      };
       reader.readAsDataURL(file);
     }
   }
@@ -97,6 +106,7 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         reporterPhone: profile?.phoneNumber || "",
         animalType,
         condition,
+        category,
         description: description.trim(),
         imageUrl,
         latitude: lat,
@@ -191,6 +201,32 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 sm:p-8 pt-1 sm:pt-2 space-y-5 sm:space-y-8 overflow-y-auto custom-scrollbar">
+          {/* Report Category Selector - NEW */}
+          <div className="space-y-4">
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+              Mission Category
+            </label>
+            <div className="flex p-1.5 bg-[hsl(155,15%,95%)] rounded-[1.5rem] gap-2">
+              {(["stray", "lost"] as const).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={`flex-1 py-3.5 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+                    category === cat
+                      ? "bg-white text-[hsl(160,10%,20%)] shadow-sm"
+                      : "text-[hsl(155,15%,50%)] hover:text-[hsl(160,10%,20%)]"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    {cat === "stray" ? <PawPrint size={14} /> : <ShieldCheck size={14} />}
+                    {cat === "stray" ? "Stray Animal" : "Lost Pet"}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {error && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
@@ -278,10 +314,34 @@ export default function ReportForm({ lat, lng, onClose, onSuccess }: ReportFormP
              </div>
 
              {/* Photo Intel */}
-             <div className="space-y-4">
-               <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
-                 Visual Intelligence
-               </label>
+              <div className="space-y-4 relative">
+                <label className="block text-xs font-black uppercase tracking-[0.2em] text-[hsl(155,15%,50%)] ml-1">
+                  Visual Intelligence
+                </label>
+                
+                <AnimatePresence>
+                  {isAnalyzing && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-x-0 top-10 bottom-0 z-10 glass backdrop-blur-md rounded-[2rem] flex flex-col items-center justify-center text-center p-4 border-2 border-dashed border-[hsl(15,80%,65%)]"
+                    >
+                      <motion.div 
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="mb-4 text-[hsl(15,80%,65%)]"
+                      >
+                        <Sparkles size={32} />
+                      </motion.div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[hsl(160,10%,20%)] animate-pulse">Running Neural Scan...</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {aiAnalysis && !imagePreview && (
+                   <p className="text-[9px] font-black text-emerald-600 absolute right-1 top-0 uppercase">{aiAnalysis}</p>
+                )}
                {imagePreview ? (
                  <div className="relative group h-[148px]">
                    <Image

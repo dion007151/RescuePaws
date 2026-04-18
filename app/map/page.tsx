@@ -9,8 +9,9 @@ import { useAuth } from "@/lib/AuthContext";
 import { Report } from "@/lib/types";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { PawPrint, LogOut, Filter, Info, Search, Heart, ShieldCheck, Loader2, MapPin } from "lucide-react";
+import { PawPrint, LogOut, Filter, Info, Search, Heart, ShieldCheck, Loader2, MapPin, Stethoscope, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { EMERGENCY_CONTACTS } from "@/lib/emergency_data";
 
 // Dynamically import heavy modals to speed up initial load
 const ReportForm = dynamic(() => import("@/components/ReportForm"), {
@@ -58,6 +59,8 @@ export default function MapPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [loadingReports, setLoadingReports] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "rescued" | "my">("all");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "stray" | "lost">("all");
+  const [showEmergency, setShowEmergency] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -92,9 +95,15 @@ export default function MapPage() {
   }, [user]);
 
   const filteredReports = reports.filter((r) => {
-    if (filter === "my") return r.userId === user?.uid;
-    if (filter === "all") return true;
-    return r.status === filter;
+    // 1. Status/Owner Filter
+    if (filter === "my" && r.userId !== user?.uid) return false;
+    if (filter !== "all" && filter !== "my" && r.status !== filter) return false;
+    
+    // 2. Category Filter
+    const reportCategory = r.category || "stray";
+    if (categoryFilter !== "all" && reportCategory !== categoryFilter) return false;
+    
+    return true;
   });
 
   // Pre-authentication check is handled inside useEffect, so we only block if total status is unknown
@@ -131,6 +140,7 @@ export default function MapPage() {
         >
           <MapComponent
             reports={filteredReports}
+            organizations={showEmergency ? EMERGENCY_CONTACTS : []}
             focusLocation={selectedReport ? [selectedReport.latitude, selectedReport.longitude] : null}
             onMapClick={(lat, lng) => {
               setClickedLocation({ lat, lng });
@@ -139,6 +149,10 @@ export default function MapPage() {
             onMarkerClick={(report) => {
               setSelectedReport(report);
               setClickedLocation(null);
+            }}
+            onOrgClick={(org) => {
+              // Show quick detail or just toast
+              console.log("Selected Org:", org.name);
             }}
           />
 
@@ -219,20 +233,54 @@ export default function MapPage() {
             </div>
             
             {/* Filter tabs — compact on mobile */}
-            <div className="flex p-1 bg-[hsl(155,15%,95%)] rounded-[1rem] gap-0.5">
-              {(["all", "my", "pending", "rescued"] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`flex-1 py-1.5 sm:py-2 rounded-[0.7rem] text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${
-                    filter === f
-                      ? "bg-white text-[hsl(160,10%,20%)] shadow-sm"
-                      : "text-[hsl(155,15%,50%)] hover:text-[hsl(160,10%,20%)]"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+            <div className="space-y-3">
+              <div className="flex p-1 bg-[hsl(155,15%,95%)] rounded-[1rem] gap-0.5">
+                {(["all", "my", "pending", "rescued"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`flex-1 py-1.5 sm:py-2 rounded-[0.7rem] text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${
+                      filter === f
+                        ? "bg-white text-[hsl(160,10%,20%)] shadow-sm"
+                        : "text-[hsl(155,15%,50%)] hover:text-[hsl(160,10%,20%)]"
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              {/* Category Filter — NEW */}
+              <div className="flex p-1 bg-[hsl(155,15%,95%)] rounded-[1rem] gap-0.5">
+                {(["all", "stray", "lost"] as const).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setCategoryFilter(cat)}
+                    className={`flex-1 py-1.5 sm:py-2 rounded-[0.7rem] text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${
+                      categoryFilter === cat
+                        ? "bg-[hsl(15,80%,65%)] text-white shadow-sm"
+                        : "text-[hsl(155,15%,50%)] hover:text-[hsl(160,10%,20%)]"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Emergency Toggle — NEW */}
+              <button
+                onClick={() => setShowEmergency(!showEmergency)}
+                className={`w-full py-3 rounded-2xl flex items-center justify-center gap-2 border-2 transition-all ${
+                  showEmergency 
+                    ? "bg-pink-50 border-pink-200 text-pink-600" 
+                    : "bg-white border-[hsl(155,15%,95%)] text-[hsl(155,15%,50%)]"
+                }`}
+              >
+                <Stethoscope size={14} className={showEmergency ? "animate-pulse" : ""} />
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  {showEmergency ? "Emergency Overlay: ON" : "Show Emergency Vets"}
+                </span>
+              </button>
             </div>
           </div>
 

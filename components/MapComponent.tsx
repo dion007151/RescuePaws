@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState, useCallback, memo } from "react";
-import { Report } from "@/lib/types";
+import { Report, Organization } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Crosshair, Plus, Minus, Navigation2 } from "lucide-react";
+import { Crosshair, Plus, Minus, Navigation2, Stethoscope, Home, ShieldCheck, Heart } from "lucide-react";
 
 interface MapComponentProps {
   reports: Report[];
+  organizations?: Organization[];
   onMapClick: (lat: number, lng: number) => void;
   onMarkerClick: (report: Report) => void;
+  onOrgClick?: (org: Organization) => void;
   center?: [number, number];
   focusLocation?: [number, number] | null;
 }
@@ -66,9 +68,11 @@ function buildUserIcon(L: any) {
 
 function MapComponentContent({
   reports,
+  organizations = [],
   onMapClick,
   onMarkerClick,
-  center = [14.5995, 120.9842],
+  onOrgClick,
+  center = [10.74, 121.94], // Centered on Antique by default now
   focusLocation,
 }: MapComponentProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -227,7 +231,7 @@ function MapComponentContent({
     });
   }, [focusLocation]);
 
-  // ── Report markers ─────────────────────────────────────────────────
+  // ── All markers (Reports + Organizations) ─────────────────────────
   useEffect(() => {
     if (!leafletMapRef.current) return;
 
@@ -235,9 +239,13 @@ function MapComponentContent({
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
 
+      // 1. Render Reports
       reports.forEach((report, index) => {
         const isRescued = report.status === "rescued";
-        const color = isRescued ? "#10b981" : "#f8947b";
+        const isLost = report.category === "lost";
+        
+        // Dynamic colors: Lost = Blue, Rescued = Green, Stray = Orange
+        const color = isRescued ? "#10b981" : isLost ? "#3b82f6" : "#f8947b";
 
         const photoHtml = report.imageUrl
           ? `<img src="${report.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
@@ -252,7 +260,7 @@ function MapComponentContent({
             </style>
             <div style="
               position:relative;width:52px;height:60px;
-              animation:mpIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) ${Math.min(index*0.03,0.5)}s both;
+              animation:mpIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) ${Math.min(index*0.02, 0.4)}s both;
               filter:drop-shadow(0 6px 12px rgba(0,0,0,0.18));
             ">
               <div style="
@@ -273,7 +281,7 @@ function MapComponentContent({
                 display:flex;align-items:center;justify-content:center;
                 box-shadow:0 1px 4px rgba(0,0,0,0.12);
                 font-size:9px;
-              ">${isRescued ? '✅' : '🛡️'}</div>
+              ">${isRescued ? '✅' : isLost ? '🔍' : '🛡️'}</div>
               <div style="
                 position:absolute;bottom:-6px;left:50%;
                 transform:translateX(-50%);
@@ -296,8 +304,43 @@ function MapComponentContent({
         });
         markersRef.current.push(marker);
       });
+
+      // 2. Render Organizations (Vets/Shelters)
+      organizations.forEach((org) => {
+        const isClinic = org.type === "clinic";
+        const color = isClinic ? "#ec4899" : "#8b5cf6"; // Pink for Vets, Purple for Shelters
+
+        const icon = L.divIcon({
+          className: "",
+          html: `
+            <div style="
+              width:40px;height:40px;
+              background:${color};
+              border:3px solid white;
+              border-radius:12px;
+              display:flex;align-items:center;justify-content:center;
+              color:white;
+              box-shadow:0 4px 12px ${color}44;
+              filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+            ">
+              ${isClinic ? '🏥' : '🏠'}
+            </div>
+          `,
+          iconSize: [40, 40],
+          iconAnchor: [22, 22],
+        });
+
+        const marker = L.marker([org.lat, org.lng], { icon, zIndexOffset: -100 }).addTo(
+          leafletMapRef.current
+        );
+        marker.on("click", (e: any) => {
+          if (onOrgClick) onOrgClick(org);
+          L.DomEvent.stopPropagation(e);
+        });
+        markersRef.current.push(marker);
+      });
     });
-  }, [reports]);
+  }, [reports, organizations]);
 
   // ── "Re-center on me" button ──────────────────────────────────────
   function handleLocate() {
