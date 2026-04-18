@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, MapPin, Heart, CheckCircle2, ShieldCheck, Clock, Loader2, Sparkles, Phone, MessageSquare, User, Trash2, AlertTriangle } from "lucide-react";
 import confetti from "canvas-confetti";
+import ChatPortal from "./ChatPortal";
 
 interface ReportDetailProps {
   report: Report;
@@ -26,6 +27,8 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
   const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [broadcasting, setBroadcasting] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [rescuing, setRescuing] = useState(false);
 
   async function markRescued() {
     setRescuing(true);
@@ -262,6 +265,14 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
                       >
                          <MessageSquare size={18} />
                       </a>
+                      
+                      <button 
+                        onClick={() => setShowChat(true)}
+                        className="w-10 h-10 bg-[hsl(160,10%,20%)] rounded-xl flex items-center justify-center text-white hover:bg-[hsl(15,80%,65%)] transition-all shadow-sm group"
+                        title="Mission Chat"
+                      >
+                         <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
+                      </button>
                    </div>
                 )}
              </div>
@@ -467,6 +478,16 @@ export default function ReportDetail({ report, onClose, onUpdate }: ReportDetail
                 </div>
               </motion.div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tactical Chat Portal Overlay */}
+        <AnimatePresence>
+          {showChat && (
+            <ChatPortal 
+              report={report} 
+              onClose={() => setShowChat(false)} 
+            />
           )}
         </AnimatePresence>
       </motion.div>

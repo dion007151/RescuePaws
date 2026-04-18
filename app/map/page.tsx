@@ -66,6 +66,8 @@ export default function MapPage() {
   const [loadingReports, setLoadingReports] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "rescued" | "my">("all");
   const [categoryFilter, setCategoryFilter] = useState<"all" | "stray" | "lost">("all");
+  const [conditionFilter, setConditionFilter] = useState<"all" | "injured" | "hungry" | "sick">("all");
+  const [timeFilter, setTimeFilter] = useState<"all" | "today" | "week">("all");
   const [showEmergency, setShowEmergency] = useState(false);
 
   useEffect(() => {
@@ -105,9 +107,20 @@ export default function MapPage() {
     if (filter === "my" && r.userId !== user?.uid) return false;
     if (filter !== "all" && filter !== "my" && r.status !== filter) return false;
     
-    // 2. Category Filter
-    const reportCategory = r.category || "stray";
-    if (categoryFilter !== "all" && reportCategory !== categoryFilter) return false;
+    // 3. Condition Filter
+    if (conditionFilter !== "all" && r.condition !== conditionFilter) return false;
+
+    // 4. Time Filter
+    const now = new Date();
+    const reportDate = r.createdAt;
+    if (timeFilter === "today") {
+      const isToday = reportDate.toDateString() === now.toDateString();
+      if (!isToday) return false;
+    } else if (timeFilter === "week") {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(now.getDate() - 7);
+      if (reportDate < oneWeekAgo) return false;
+    }
     
     return true;
   });
@@ -254,6 +267,35 @@ export default function MapPage() {
                     {f}
                   </button>
                 ))}
+              </div>
+
+              {/* Advanced Controls Row */}
+              <div className="grid grid-cols-2 gap-2">
+                 <div className="space-y-1">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-1">Grid Priority</p>
+                    <select 
+                      value={conditionFilter}
+                      onChange={(e) => setConditionFilter(e.target.value as any)}
+                      className="w-full bg-[hsl(155,15%,95%)] border-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-[hsl(15,80%,65%)]"
+                    >
+                       <option value="all">All Conditions</option>
+                       <option value="injured">🚑 Injured</option>
+                       <option value="hungry">🍖 Hungry</option>
+                       <option value="sick">🤒 Sick</option>
+                    </select>
+                 </div>
+                 <div className="space-y-1">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-[hsl(155,15%,50%)] ml-1">Time Period</p>
+                    <select 
+                      value={timeFilter}
+                      onChange={(e) => setTimeFilter(e.target.value as any)}
+                      className="w-full bg-[hsl(155,15%,95%)] border-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-[hsl(15,80%,65%)]"
+                    >
+                       <option value="all">All Time</option>
+                       <option value="today">Today Only</option>
+                       <option value="week">Past 7 Days</option>
+                    </select>
+                 </div>
               </div>
 
               {/* Category Filter — NEW */}

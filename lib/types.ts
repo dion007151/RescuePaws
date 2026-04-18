@@ -64,3 +64,12 @@ export interface Organization {
   lat: number;
   lng: number;
 }
+
+export interface ChatMessage {
+  id: string;
+  reportId: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: Date;
+}
