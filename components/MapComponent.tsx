@@ -21,6 +21,7 @@ function MapComponentContent({
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const userMarkerRef = useRef<any>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [showLocatingOverlay, setShowLocatingOverlay] = useState(false);
 
@@ -50,19 +51,84 @@ function MapComponentContent({
       // AUTO-LOCATION: Find the user immediately on load if no focusLocation is provided
       if (!focusLocation) {
         setShowLocatingOverlay(true);
-        map.locate({ setView: true, maxZoom: 16 });
-        
-        map.on("locationfound", () => {
-          setShowLocatingOverlay(false);
-        });
-        
-        map.on("locationerror", () => {
-          setShowLocatingOverlay(false);
-        });
-        
-        // Timeout to hide overlay if GPS is too slow
-        setTimeout(() => setShowLocatingOverlay(false), 5000);
+        map.locate({ setView: true, maxZoom: 16, watch: false });
       }
+
+      map.on("locationfound", (e: any) => {
+        setIsLocating(false);
+        setShowLocatingOverlay(false);
+
+        // Update or create the "You" marker
+        const userIcon = L.divIcon({
+          className: "user-location-marker",
+          html: `
+            <div class="user-pulse-container">
+              <div class="user-pulse-ring"></div>
+              <div class="user-pulse-core">
+                <span class="user-pulse-text">YOU</span>
+              </div>
+            </div>
+            <style>
+              @keyframes user-ping {
+                0% { transform: scale(0.5); opacity: 0.8; }
+                100% { transform: scale(3); opacity: 0; }
+              }
+              .user-pulse-container {
+                position: relative;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              .user-pulse-ring {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: #3b82f6;
+                border-radius: 50%;
+                animation: user-ping 2s infinite cubic-bezier(0, 0, 0.2, 1);
+              }
+              .user-pulse-core {
+                position: relative;
+                width: 24px;
+                height: 24px;
+                background: #3b82f6;
+                border: 3px solid white;
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2;
+              }
+              .user-pulse-text {
+                font-size: 6px;
+                font-weight: 900;
+                color: white;
+                letter-spacing: 0.05em;
+              }
+            </style>
+          `,
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+        });
+
+        if (userMarkerRef.current) {
+          userMarkerRef.current.setLatLng(e.latlng);
+        } else {
+          userMarkerRef.current = L.marker(e.latlng, { 
+            icon: userIcon,
+            zIndexOffset: 1000 // Always on top
+          }).addTo(map);
+        }
+      });
+      
+      map.on("locationerror", () => {
+        setIsLocating(false);
+        setShowLocatingOverlay(false);
+      });
+
     });
 
     return () => {
