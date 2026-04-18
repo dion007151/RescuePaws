@@ -9,6 +9,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { PawPrint, Mail, Lock, UserPlus, ArrowRight, Loader2, ShieldCheck, User, Phone } from "lucide-react";
 import { TermsModal } from "@/components/TermsModal";
+import { BackgroundDecoration } from "@/components/BackgroundDecoration";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
