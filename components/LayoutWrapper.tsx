@@ -18,7 +18,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className={showNav ? "md:pl-32 lg:pl-80 transition-all duration-500" : ""}>
+      <div className={showNav ? "md:pl-32 lg:pl-80 pt-28 pb-32 md:pt-0 md:pb-0 transition-all duration-500" : ""}>
         {children}
       </div>
     </div>

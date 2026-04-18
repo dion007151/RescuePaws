@@ -29,6 +29,21 @@ export default function Navigation() {
 
   return (
     <>
+      {/* Mobile Top Header - Always visible after login */}
+      <header className="fixed top-6 left-6 right-6 h-16 md:hidden z-[100] glass rounded-3xl flex items-center justify-between px-6 shadow-xl border-white/40">
+        <div className="flex items-center gap-2">
+           <div className="w-8 h-8 bg-[hsl(15,80%,65%)] rounded-xl flex items-center justify-center shadow-sm">
+              <PawPrint className="text-white" size={16} />
+           </div>
+           <span className="font-display text-lg font-black text-[hsl(160,10%,20%)] italic">RP</span>
+        </div>
+        
+        <div className="dev-badge scale-90">
+           <ShieldCheck size={10} className="text-[hsl(15,80%,65%)] mr-1.5" />
+           <span className="text-[8px] font-black uppercase tracking-[0.1em] text-[hsl(160,10%,20%)]">Dionimar Flores</span>
+        </div>
+      </header>
+
       {/* Desktop Sidebar */}
       <aside className="fixed left-6 top-6 bottom-6 w-20 lg:w-64 hidden md:flex flex-col z-[100]">
         <div className="flex-1 glass rounded-[2.5rem] flex flex-col p-4 shadow-2xl border-white/40">
@@ -37,23 +52,6 @@ export default function Navigation() {
               <PawPrint className="text-white" size={24} />
             </div>
             <span className="font-display text-xl font-black text-[hsl(160,10%,20%)] hidden lg:block">RescuePaws</span>
-          </div>
-
-          <div className="hidden lg:block px-2 mb-8 -mt-6">
-            <div className="relative p-4 rounded-3xl bg-white/40 border border-white/50 shadow-sm overflow-hidden group">
-              <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                <ShieldCheck size={40} className="text-[hsl(15,80%,65%)]" />
-              </div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">Solo Developer</span>
-                <div className="w-3.5 h-3.5 bg-[hsl(15,80%,65%)] rounded-full flex items-center justify-center verified-ring">
-                  <ShieldCheck size={8} className="text-white" />
-                </div>
-              </div>
-              <p className="text-sm font-black text-[hsl(160,10%,20%)] hover:text-[hsl(15,80%,65%)] transition-colors cursor-default">
-                Dionimar Flores
-              </p>
-            </div>
           </div>
 
           <nav className="flex-1 space-y-2">
@@ -81,6 +79,31 @@ export default function Navigation() {
               );
             })}
           </nav>
+
+          <div className="hidden lg:block px-2 mb-4 mt-6">
+            <motion.div 
+              whileHover={{ y: -5 }}
+              className="relative p-5 rounded-[2rem] god-card border border-white shadow-2xl overflow-hidden group cursor-default"
+            >
+              <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-30 transition-all duration-500 rotate-12 group-hover:rotate-0">
+                <ShieldCheck size={48} className="text-[hsl(15,80%,65%)]" />
+              </div>
+              
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-4 h-4 bg-[hsl(15,80%,65%)] rounded-full flex items-center justify-center verified-ring">
+                  <ShieldCheck size={10} className="text-white" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(15,80%,65%)]">Verified Developer</span>
+              </div>
+              
+              <p className="text-sm font-black text-[hsl(160,10%,20%)] premium-glow">
+                Dionimar Flores
+              </p>
+              <p className="text-[10px] font-black text-[hsl(155,15%,50%)] uppercase tracking-wider mt-0.5">
+                Solo Developer
+              </p>
+            </motion.div>
+          </div>
 
           <button
             onClick={handleLogout}
