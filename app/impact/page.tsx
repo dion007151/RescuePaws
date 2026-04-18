@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 import {
   PawPrint, MapPin, CheckCircle2, Camera, Heart,
-  ChevronRight, Star, Zap, Map
+  ChevronRight, Star, Zap, Map, ShieldCheck
 } from "lucide-react";
 
 const steps = [
@@ -243,14 +243,14 @@ export default function ImpactPage() {
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             className="space-y-4"
           >
-            <button
+            <motion.button
               onClick={() => router.push("/map")}
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               className="w-full bg-[hsl(160,10%,20%)] hover:bg-[hsl(160,10%,30%)] text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-black/10 flex items-center justify-center gap-3 text-lg transition-all"
             >
               <MapPin size={20} />
               Back to Map
-            </button>
+            </motion.button>
 
             {/* Solo Developer Personal Credit */}
             <div className="pt-8 pb-12 flex flex-col items-center gap-2 text-center">
